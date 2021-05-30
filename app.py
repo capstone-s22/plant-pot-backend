@@ -7,7 +7,7 @@ from lib import utils
 # Initialize Flask app
 app = Flask(__name__)
 
-cred = credentials.Certificate('credentials/plant-pot-41e34-firebase-adminsdk-ps1tl-b6e84a4352.json')
+cred = credentials.Certificate(utils.get_firebase_credentials())
 default_app = initialize_app(cred)
 db = firestore.client()
 pots_collection = db.collection('pots')
