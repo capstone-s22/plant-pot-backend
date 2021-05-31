@@ -27,7 +27,7 @@
             }
         }
         ```
-    * Update parameters (PATCH): https://plant-pot-backend.herokuapp.com/update
+    * Update parameters (PUT): https://plant-pot-backend.herokuapp.com/update
         Send JSON request data, e.g.
         ```json
         {
