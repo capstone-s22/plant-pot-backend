@@ -7,6 +7,7 @@ from lib import utils
 # Initialize Flask app
 app = Flask(__name__)
 
+# Argument can be a dictionary in place of json file
 cred = credentials.Certificate(utils.get_firebase_credentials())
 default_app = initialize_app(cred)
 db = firestore.client()
