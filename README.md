@@ -50,18 +50,47 @@
         "NutrientLevel": {
             "25 May 2021 12:00:00 AM":  0.7
         },
-        "GreenPointScore": {
-            "25 May 2021 12:00:00 AM":  0.5
-        },
         "WaterLevel": {
             "25 May 2021 12:00:00 AM":  0.4
         },
+        "GreenPointScore": {
+            "Plant1" :{
+                "25 May 2021 12:00:00 AM":  0.5
+            },
+            "Plant2" :{
+                "25 May 2021 12:00:00 AM":  0.5
+            },
+            "Plant3" :{
+                "25 May 2021 12:00:00 AM":  0.5
+            },
+            "Plant4" :{
+                "25 May 2021 12:00:00 AM":  0.4
+            }
+        },
         "IsPlantHealthy": {
-            "25 May 2021 12:00:00 AM":  0.7
+            "Plant1" :{
+                "25 May 2021 12:00:00 AM":  true
+            },
+            "Plant2" :{
+                "25 May 2021 12:00:00 AM":  true
+            },
+            "Plant3" :{
+                "25 May 2021 12:00:00 AM":  true
+            },
+            "Plant4" :{
+                "25 May 2021 12:00:00 AM":  false
+            }        
         },
         "ToRing": {
             "25 May 2021 12:00:00 AM":  true
+        },
+        "HasCheckedIn": {
+            "25 May 2021":  "09:00:00 AM",
+            "26 May 2021":  "10:00:00 AM",
+            "27 May 2021":  "10:00:00 AM",
+            "27 May 2021":  null,
         }
+        
     }
 }
 ```
