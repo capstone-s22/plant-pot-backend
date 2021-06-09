@@ -1,4 +1,4 @@
-Flask
+fastapi
+uvicorn[standard]
 firebase_admin
-gunicorn
 python-dotenv
