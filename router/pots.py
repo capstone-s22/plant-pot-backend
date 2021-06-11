@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get('/health')
 async def create():
     try:
-        await ws_pots.manager.send_personal_message("Alerting you", "0002")
+        await ws_pots.manager.broadcast("Broadcast")
         return {"health check": True}
     except Exception as e:
         return f"An Error Occured: {e}"

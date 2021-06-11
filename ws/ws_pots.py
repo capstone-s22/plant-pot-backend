@@ -20,17 +20,22 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections[websocket.path_params['pot_id']] = websocket
+        print("WS connected with Pot {}".format(websocket.path_params['pot_id']))
+        print("Connected WSs: {}".format(self.active_connections.keys()))
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
     async def send_personal_message(self, message: str, pot_id: str):
-        websocket: WebSocket = self.active_connections[pot_id]
-        await websocket.send_text(message)
+        if pot_id in self.active_connections:
+            websocket: WebSocket = self.active_connections[pot_id]
+            await websocket.send_text(message)
+        else:
+            print("Websocket for Pot {} not found".format(pot_id))
 
     async def broadcast(self, message: str):
-        for connection in self.active_connections:
-            await connection.send_text(message)
+        for pot_id in self.active_connections:
+            await self.active_connections[pot_id].send_text(message)
 
 manager = ConnectionManager()
 
