@@ -17,16 +17,25 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str : WebSocket] = {} #TODO: change type to pot id
 
+    def check_existing_connections(self, prefix_msg="Exiting Connections"):
+        print("{} : {}".format(prefix_msg, self.active_connections.keys()))
+
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections[websocket.path_params['pot_id']] = websocket
         print("WS connected with Pot {}".format(websocket.path_params['pot_id']))
         print("Connected WSs: {}".format(self.active_connections.keys()))
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+    async def disconnect(self, pot_id):
+        self.check_existing_connections("Before disconnect")
+        print(pot_id)
+        self.check_existing_connections()
+        # self.active_connections.pop(pot_id, None)
+        del self.active_connections[pot_id]
+        self.check_existing_connections("After disconnect")
 
     async def send_personal_message(self, message: str, pot_id: str):
+        self.check_existing_connections("Before sending message")
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
@@ -34,6 +43,7 @@ class ConnectionManager:
             print("Websocket for Pot {} not found".format(pot_id))
 
     async def broadcast(self, message: str):
+        self.check_existing_connections()
         for pot_id in self.active_connections:
             print("Broadcasting to Pot {}".format(pot_id))
             await self.active_connections[pot_id].send_text(message)
@@ -42,7 +52,7 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 @router.websocket("/ws/{pot_id}")
-async def websocket_endpoint(websocket: WebSocket, pot_id: int):
+async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     await manager.connect(websocket)
 
     try:
@@ -57,5 +67,5 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: int):
         print(e)           
 
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast(f"Client #{pot_id} left the chat")
+        print("------------------")
+        await manager.disconnect(pot_id)
