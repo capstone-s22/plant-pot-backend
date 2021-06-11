@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get('/health')
 async def create():
     try:
-        await ws_pots.manager.check_existing_connections()
+        ws_pots.manager.check_existing_connections()
         await ws_pots.manager.broadcast("Broadcast")
         return {"health check": True}
     except Exception as e:
