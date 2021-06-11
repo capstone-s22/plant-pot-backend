@@ -7,12 +7,14 @@ from lib.firebase import pots_collection
 
 sys.path.append("..")
 from ws import ws_pots
-
+from requests import get
 router = APIRouter()
 
 @router.get('/health')
 async def create():
     try:
+        ip = get('https://api.ipify.org').text
+        print('My public IP address is: {}'.format(ip))
         ws_pots.manager.check_existing_connections()
         await ws_pots.manager.broadcast("Broadcast")
         return {"health check": True}
