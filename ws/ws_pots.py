@@ -35,7 +35,9 @@ class ConnectionManager:
 
     async def broadcast(self, message: str):
         for pot_id in self.active_connections:
+            print("Broadcasting to Pot {}".format(pot_id))
             await self.active_connections[pot_id].send_text(message)
+            print("Broadcast to Pot {} complete".format(pot_id))
 
 manager = ConnectionManager()
 
