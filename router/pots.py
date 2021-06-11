@@ -1,14 +1,19 @@
+import sys
 from fastapi import APIRouter
 from models.Pot import NewPot, HealthMetricUpdate
 from lib import utils
 
 from lib.firebase import pots_collection
 
+sys.path.append("..")
+from ws import ws_pots
+
 router = APIRouter()
 
 @router.get('/health')
-async def create(new_pot: NewPot):
+async def create():
     try:
+        await ws_pots.manager.send_personal_message("Alerting you", "0002")
         return {"health check": True}
     except Exception as e:
         return f"An Error Occured: {e}"
