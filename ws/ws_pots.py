@@ -17,7 +17,7 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str : WebSocket] = {} #TODO: change type to pot id
 
-    def check_existing_connections(self, prefix_msg="Exiting Connections"):
+    def check_existing_connections(self, prefix_msg="Existing Connections"):
         print("{} : {}".format(prefix_msg, self.active_connections.keys()))
 
     async def connect(self, websocket: WebSocket):
@@ -26,7 +26,7 @@ class ConnectionManager:
         print("WS connected with Pot {}".format(websocket.path_params['pot_id']))
         print("Connected WSs: {}".format(self.active_connections.keys()))
 
-    async def disconnect(self, pot_id):
+    def disconnect(self, pot_id):
         self.check_existing_connections("Before disconnect")
         print(pot_id)
         self.check_existing_connections()
@@ -43,9 +43,8 @@ class ConnectionManager:
             print("Websocket for Pot {} not found".format(pot_id))
 
     async def broadcast(self, message: str):
-        self.check_existing_connections()
+        self.check_existing_connections("Broadcasting to")
         for pot_id in self.active_connections:
-            print("Broadcasting to Pot {}".format(pot_id))
             await self.active_connections[pot_id].send_text(message)
             print("Broadcast to Pot {} complete".format(pot_id))
 
@@ -68,4 +67,4 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
 
     except WebSocketDisconnect:
         print("------------------")
-        await manager.disconnect(pot_id)
+        manager.disconnect(pot_id)
