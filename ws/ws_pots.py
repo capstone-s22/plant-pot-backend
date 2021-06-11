@@ -18,17 +18,10 @@ class ConnectionManager:
         self.active_connections: Dict[str : WebSocket] = {} #TODO: change type to pot id
 
     def check_existing_connections(self, prefix_msg="Existing Connections"):
-        f = open("wsConnections.txt", "r")
-        print(f.read())
         print("{} : {}".format(prefix_msg, self.active_connections.keys()))
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-
-        f = open("wsConnections.txt", "a")
-        f.write(websocket.path_params['pot_id'])
-        f.close()
-
         self.active_connections[websocket.path_params['pot_id']] = websocket
         print("WS connected with Pot {}".format(websocket.path_params['pot_id']))
         print("Connected WSs: {}".format(self.active_connections.keys()))
@@ -55,8 +48,6 @@ class ConnectionManager:
             await self.active_connections[pot_id].send_text(message)
             print("Broadcast to Pot {} complete".format(pot_id))
 
-manager = ConnectionManager()
-
 @router.websocket("/ws/{pot_id}")
 async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     await manager.connect(websocket)
@@ -75,3 +66,5 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     except WebSocketDisconnect:
         print("------------------")
         manager.disconnect(pot_id)
+
+manager = ConnectionManager()
