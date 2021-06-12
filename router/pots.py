@@ -6,14 +6,14 @@ from lib import utils
 from lib.firebase import pots_collection
 
 sys.path.append("..")
-from ws import ws_pots
+from ws.ws_pots import manager
 router = APIRouter()
 
 @router.get('/health')
 async def create():
     try:
-        ws_pots.manager.check_existing_connections()
-        await ws_pots.manager.broadcast("Broadcast")
+        manager.check_existing_connections()
+        await manager.broadcast("Broadcast")
         return {"health check": True}
     except Exception as e:
         return f"An Error Occured: {e}"
