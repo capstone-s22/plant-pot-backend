@@ -12,26 +12,7 @@ from models.Quiz import Quiz, quizDifficulty
 from models.CheckIn import CheckIn
 from models.Activity import Activity
 
-def update_new_session(pot_id, seed_choice, pet_name, pet_type):
-
-    new_pot = Pot(
-        pot_id=pot_id,
-        pot_registered_time=time.time(),
-        sessions={}
-        )
-
-    new_session = Session(
-        sessionStartTime=time.time(),
-        sessionEndTime=None,
-        seed=seed_choice,
-        newSessInput=NewSessionInput(
-            petName=pet_name,
-            petType=pet_type,
-            seed=seed_choice
-
-            ),
-        )
-
+# TODO: initialize default values directly in the classes and not here
 def new_pot_registration(pot_id):
     new_session_id = str(1)
     new_pot = Pot(
@@ -79,9 +60,11 @@ def new_pot_registration(pot_id):
         reward=Reward(
                 coins=80,
                 leaves=40,
-                coinReward=0,
+                coinsReward=0,
                 leavesReward=0,
-            ),
+                alertCoinSound=False,
+                alertLeavesSound=False
+                ),
 
         quiz=Quiz(
             showQuiz=False,

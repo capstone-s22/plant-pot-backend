@@ -3,5 +3,7 @@ from pydantic import BaseModel
 class Reward(BaseModel):
     coins: int
     leaves: int
-    coinReward: int
+    coinsReward: int
     leavesReward: int
+    alertCoinSound: bool
+    alertLeavesSound: bool
