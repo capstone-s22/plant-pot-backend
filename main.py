@@ -3,6 +3,10 @@ import uvicorn
 
 from router import pots
 from ws import ws_pots
+# from lib import scheduler
+import models
+from models.messages import actions
+
 # Initialize FastAPI app
 app = FastAPI()
 

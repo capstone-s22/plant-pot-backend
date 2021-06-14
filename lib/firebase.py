@@ -46,15 +46,15 @@ async def listen_collection(collection):
                 print(f'Modified Pot: {change.document.id}')
                 doc_updated = change.document.__dict__['_data']
                 print(1)
-                pot_id = doc_updated["ID"]
-                print(pot_id)
-                for field in doc_updated:
-                    if type(doc_updated[field]) == bool and doc_updated[field]:
-                        print(2)
-                        print(field, doc_updated[field])
-                        await handle_flag(pot_id, field)
-            elif change.type.name == 'REMOVED':
-                print(f'Removed Pot: {change.document.id}')
+            #     pot_id = doc_updated["ID"]
+            #     print(pot_id)
+            #     for field in doc_updated:
+            #         if type(doc_updated[field]) == bool and doc_updated[field]:
+            #             print(2)
+            #             print(field, doc_updated[field])
+            #             await handle_flag(pot_id, field)
+            # elif change.type.name == 'REMOVED':
+            #     print(f'Removed Pot: {change.document.id}')
 
         callback_done.set()
 

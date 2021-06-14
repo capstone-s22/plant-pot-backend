@@ -8,7 +8,6 @@ import sys
 sys.path.append("..")
 from lib import firebase
 
-from models.Pot import HealthMetricUpdate
 from models.utils import validate_model
 
 router = APIRouter()
