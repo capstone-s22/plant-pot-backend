@@ -10,9 +10,9 @@ class PotId(BaseModel):
     id: str
 
 class Pot(BaseModel):
-    pot_id: Union[None, str]
+    potId: Union[None, str]
     # user_id: str
-    pot_registered_time: datetime
+    potRegisteredTime: datetime
     sessions: Dict[str, Session]
 
 class NewPot(BaseModel):

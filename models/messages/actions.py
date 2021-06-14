@@ -4,8 +4,7 @@ import time as time
 
 from models.User import User
 from models.Pot import Pot, PotId
-from models.Session import Session, Seed
-from models.Pet import Pet
+from models.Session import Session, NewSessionInput
 from models.Sensor import Sensor, SensorType, SensorIndicatorRange
 from models.GreenPointValues import GreenPointValues
 from models.Reward import Reward
@@ -25,29 +24,30 @@ def update_new_session(pot_id, seed_choice, pet_name, pet_type):
         sessionStartTime=time.time(),
         sessionEndTime=None,
         seed=seed_choice,
-        pet=Pet(
-            name=pet_name,
-            type=pet_type
+        newSessInput=NewSessionInput(
+            petName=pet_name,
+            petType=pet_type,
+            seed=seed_choice
+
             ),
         )
 
 def new_pot_registration(pot_id):
     new_session_id = str(1)
-
     new_pot = Pot(
-        pot_id=pot_id,
-        pot_registered_time=time.time(),
+        potId=pot_id,
+        potRegisteredTime=time.time(),
         sessions={}
         )
-
     new_session = Session(
         session_id = new_session_id,
         sessionStartTime=time.time(),
         sessionEndTime=None,
-        seed=None,
-        pet=Pet(
-            name=None,
-            type=None
+        newSessInput=NewSessionInput(
+            potId=pot_id,
+            petName=None,
+            petType=None,
+            seed=None
             ),
         sensors={
             "temperature": Sensor(
@@ -101,7 +101,6 @@ def new_pot_registration(pot_id):
             type=None
             )
         )   
-
 
     new_pot.sessions[new_session_id]= new_session
 
