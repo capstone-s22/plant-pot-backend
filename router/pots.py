@@ -2,12 +2,11 @@ import sys
 from fastapi import APIRouter
 from models.Pot import NewPot
 from lib import utils
-from models.messages import actions
-import datetime
+from ws.pot import new_pot_registration
 from lib.firebase import pots_collection
 
 sys.path.append("..")
-from ws.ws_pots import manager
+from ws.ws_server import manager
 router = APIRouter()
 
 @router.get('/health')
@@ -19,13 +18,11 @@ async def create():
     except Exception as e:
         return f"An Error Occured: {e}"
 
-
-
 @router.post('/add')
 async def create(new_pot: NewPot):
     try:
         pot_id = new_pot.id
-        data = actions.new_pot_registration(pot_id)
+        data = new_pot_registration(pot_id)
         print(data)
         pots_collection.document(pot_id).set(data)
         return {"success": True}

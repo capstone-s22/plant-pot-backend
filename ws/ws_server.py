@@ -5,10 +5,8 @@ from typing import List, Dict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 import sys
 
-sys.path.append("..")
-from lib import firebase
-
-from models.utils import validate_model
+from validations.schemas import validate_model
+from ws.manager import crud_manager
 
 router = APIRouter()
     
@@ -47,6 +45,14 @@ class ConnectionManager:
             await self.active_connections[pot_id].send_text(message)
             print("Broadcast to Pot {} complete".format(pot_id))
 
+    async def process_message(self, data):
+        try:
+            message_obj = validate_model(data)
+            response = crud_manager(message_obj)
+            return response
+        except Exception as e:
+            return str(e)
+
 @router.websocket("/ws/{pot_id}")
 async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     print(manager)
@@ -55,8 +61,8 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            # validate_model(HealthMetricUpdate, data)
-            # await manager.send_personal_message(f"You wrote: {data}", websocket)
+            response = await manager.process_message(data)
+            await manager.send_personal_message(response, pot_id)
             # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
     except pydantic.error_wrappers.ValidationError as e:

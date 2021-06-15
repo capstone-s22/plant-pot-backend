@@ -9,7 +9,7 @@ import json
 from asgiref.sync import async_to_sync
 
 sys.path.append("..")
-from ws import ws_pots
+from ws import ws_server
 
 load_dotenv()
 
@@ -63,8 +63,8 @@ async def listen_collection(collection):
     # collection.on_snapshot(on_snapshot)
 
 async def handle_flag(pot_id, field):
-    await ws_pots.manager.send_personal_message("Alerting you on field: {}".format(field), pot_id)
-    print(ws_pots.manager.active_connections)
+    await ws_server.manager.send_personal_message("Alerting you on field: {}".format(field), pot_id)
+    print(ws_server.manager.active_connections)
 
 # Argument can be a dictionary in place of json file
 cred = credentials.Certificate(get_firebase_credentials())

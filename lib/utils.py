@@ -34,6 +34,8 @@ def getCurrentTimeStr():
 def getCurrentTime():
     return int(time.time())
 
+############################################################################################################
+
 pot_id = "ID"
 ambient_temp =  "Temperature"
 nutrient_level =  "NutrientLevel"
@@ -69,4 +71,3 @@ def append_parameter_schema(param_name, param_value):
     parameter_schema["{}.{}".format(param_name, current_time)] = param_value
 
     return parameter_schema
-
