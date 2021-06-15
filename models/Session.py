@@ -22,6 +22,7 @@ class NewSessionInput(BaseModel):
     petType: Union[None, PetType]
     seed: Union[None, Seed]
     potId: str
+    hat: Union[None, str]
     
     class Config:  
         use_enum_values = True

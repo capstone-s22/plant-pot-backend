@@ -28,7 +28,8 @@ def new_pot_registration(pot_id):
             potId=pot_id,
             petName=None,
             petType=None,
-            seed=None
+            seed=None,
+            hat=None
             ),
         sensors={
             "temperature": Sensor(
@@ -74,7 +75,7 @@ def new_pot_registration(pot_id):
             ),
 
         checkIn=CheckIn(
-            checkIn=False,
+            showCheckIn=False,
             checkInStreak=0,
             checkInLastDate=None,
             checkInToopTipDone=False
