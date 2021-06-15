@@ -52,7 +52,7 @@
 		}
 		```
 
-## From Backend to DB
+## From Scheduled Task (Backend)
 * Update Rewards (daily checkin)
 	```json
 	{
