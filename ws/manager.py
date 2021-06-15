@@ -23,7 +23,7 @@ def crud_manager(message: Message):
                 if pot_data_dict["field"] == PotDataBool.checkIn:
                     show_check_in = pot_data_dict["value"]
                     # TODO: Retrieve latest session if keeping track
-                    firestore_input = {"sessions.1.checkIn.checkIn".format() : show_check_in}
+                    firestore_input = {"sessions.1.checkIn.showCheckIn".format() : show_check_in}
                     pots_collection.document(pot_id).update(firestore_input)
                     return "showCheckIn for Pot {} changed to {}.".format(pot_id, show_check_in)
         else:
