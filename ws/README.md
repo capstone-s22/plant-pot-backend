@@ -29,6 +29,20 @@
 	}
 	```
 
+* Sending encoded images
+	```json
+	{
+		"action": "update",
+		"potId": "0001",
+		"data": [
+			{
+				"field": "image",
+				"value": "<encoded-image-data>"
+			}
+		]
+	}
+	```
+
 * Plant Care Activity
 	* Update sensor values
 		```json
