@@ -74,3 +74,6 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
         manager.disconnect(pot_id)
 
 manager = ConnectionManager()
+
+print(locals())
+
