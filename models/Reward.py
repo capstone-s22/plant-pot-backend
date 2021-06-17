@@ -1,9 +1,7 @@
 from pydantic import BaseModel
 
 class Reward(BaseModel):
-    coins: int
-    leaves: int
-    coinsReward: int
-    leavesReward: int
-    alertCoinSound: bool
-    alertLeavesSound: bool
+    coins: int = 80
+    leaves: int = 40
+    alertCoinSound: bool = False
+    alertLeavesSound: bool = False

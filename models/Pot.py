@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List, Dict, Union
+from typing import Dict, Union
 from uuid import UUID
- 
+import time
 from models.Session import Session
 
 #TODO: Integrate sessionID in sessions key
@@ -12,8 +12,8 @@ class PotId(BaseModel):
 class Pot(BaseModel):
     potId: Union[None, str]
     # user_id: str
-    potRegisteredTime: datetime
-    sessions: Dict[str, Session]
+    potRegisteredTime: datetime = time.time()
+    sessions: Dict[str, Session] = {}
 
 class NewPot(BaseModel):
     id: str

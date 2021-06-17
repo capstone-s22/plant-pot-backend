@@ -1,47 +1,49 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, Union
 from enum import Enum
+import time
 
-from models.Sensor import Sensor
+from models.Sensor import Sensor, SensorType
 from models.GreenPointValues import GreenPointValues
 from models.Reward import Reward
 from models.Quiz import Quiz
 from models.CheckIn import CheckIn
-from models.Activity import Activity
+from models.Tutorial import Tutorial
 
 class Seed(str, Enum):
     xiao_bai_cai = "xiao bai cai"
+    class Config:  
+        use_enum_values = True
 
 class PetType(str, Enum):
     dog = "dog"
     cat = "cat"
-
-class NewSessionInput(BaseModel):
-    petName: Union[None, str]
-    petType: Union[None, PetType]
-    seed: Union[None, Seed]
-    potId: str
-    hat: Union[None, str]
-    
     class Config:  
         use_enum_values = True
+
+class NewSessionInput(BaseModel):
+    petName: Union[None, str] = None
+    petType: Union[None, PetType] = None
+    seed: Union[None, Seed] = None
+    hat: Union[None, str] = None
+    potId: str
 
 
 #TODO: integrate sensor type as key in sensors
 class Session(BaseModel):
-    session_id: Union[None, str]
-    sessionStartTime: datetime
-    sessionEndTime: Union[None, datetime]
+    session_id: Union[None, str] = "1"
+    sessionStartTime: datetime = time.time()
+    sessionEndTime: Union[None, datetime] = None
+    greenPointValues: GreenPointValues= GreenPointValues()
+    reward: Reward = Reward()
+    quiz: Quiz = Quiz()
+    checkIn: CheckIn = CheckIn()
+    tutorial: Tutorial = Tutorial()
+    sensors: Dict[SensorType, Sensor] = {
+        SensorType.temperature: Sensor(type=SensorType.temperature),
+        SensorType.nutrient_level: Sensor(type=SensorType.nutrient_level),
+        SensorType.water_level: Sensor(type=SensorType.water_level)
+        }
     newSessInput: NewSessionInput
-    sensors: Dict[str, Sensor]
-    greenPointValues: GreenPointValues
-    reward: Reward
-    quiz: Quiz
-    checkIn: CheckIn
-    activity: Activity
-    
-    class Config:  
-        use_enum_values = True
 
-# class UpdateSession(BaseModel):

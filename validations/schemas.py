@@ -10,9 +10,9 @@ from models.Session import Session, NewSessionInput
 from models.Sensor import Sensor, SensorType, SensorIndicatorRange
 from models.GreenPointValues import GreenPointValues
 from models.Reward import Reward
-from models.Quiz import Quiz, quizDifficulty
+from models.Quiz import Quiz, QuizDifficulty
 from models.CheckIn import CheckIn
-from models.Activity import Activity
+from models.Tutorial import Tutorial
 
 '''
 Pot to Backend JSON messages

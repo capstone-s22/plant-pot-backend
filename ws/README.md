@@ -43,7 +43,7 @@
 	}
 	```
 
-* Plant Care Activity
+* Plant Care
 	* Update sensor values
 		```json
 		{
@@ -117,7 +117,7 @@
 * **Schedule quizzes**
 
 
-* Plant Care Activity
+* Plant Care
 	* Request latest health status
 		```json
 		{
@@ -204,7 +204,7 @@
 				}
 			]
 		}
-* Plant Care Activity
+* Plant Care
 	* Update toAlert
 		```json
 		{
