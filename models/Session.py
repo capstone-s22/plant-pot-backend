@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Dict, Union
 from enum import Enum
-import time
 
 from models.Sensor import Sensor, SensorType
 from models.GreenPointValues import GreenPointValues
@@ -33,7 +32,7 @@ class NewSessionInput(BaseModel):
 #TODO: integrate sensor type as key in sensors
 class Session(BaseModel):
     session_id: Union[None, str] = "1"
-    sessionStartTime: datetime = time.time()
+    sessionStartTime: datetime = datetime.utcnow()
     sessionEndTime: Union[None, datetime] = None
     greenPointValues: GreenPointValues= GreenPointValues()
     reward: Reward = Reward()
