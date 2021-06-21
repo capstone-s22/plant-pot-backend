@@ -1,0 +1,10 @@
+{
+    "action": "create",
+    "potId": "9999",
+    "data": [
+        {
+            "field": "pot",
+            "value": "9999"
+        }
+    ]
+}

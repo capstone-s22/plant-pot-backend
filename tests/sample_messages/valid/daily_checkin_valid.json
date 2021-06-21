@@ -1,0 +1,10 @@
+{
+    "action": "update",
+    "potId": "9999",
+    "data": [
+        {
+            "field": "checkIn",
+            "value": true
+        }
+    ]
+}
