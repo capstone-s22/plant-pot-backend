@@ -1,3 +1,4 @@
+import sys
 from fastapi import FastAPI
 import uvicorn
 
@@ -12,4 +13,4 @@ app.include_router(pots.router)
 app.include_router(ws_server.router)
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', host='localhost', port=8000, reload=True, debug=True, log_level="debug")
+    sys.exit("Run: `uvicorn main:app --reload --port 3001` instead")
