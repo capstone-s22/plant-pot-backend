@@ -18,8 +18,7 @@ from models.Tutorial import Tutorial
 Pot to Backend JSON messages
 '''
 
-def validate_model(data):
-    print((data))
+async def validate_model(data):
     return Message.parse_obj(data)
 
 class Action(str, Enum):

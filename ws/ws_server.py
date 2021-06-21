@@ -1,9 +1,7 @@
-import asyncio
 import pydantic
 from typing import List, Dict
 # from typing_extensions import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-import sys
 
 from validations.schemas import validate_model
 from ws.manager import crud_manager
@@ -25,8 +23,6 @@ class ConnectionManager:
 
     def disconnect(self, pot_id):
         self.check_existing_connections("Before disconnect")
-        print(pot_id)
-        self.check_existing_connections()
         # self.active_connections.pop(pot_id, None)
         del self.active_connections[pot_id]
         self.check_existing_connections("After disconnect")
@@ -41,21 +37,24 @@ class ConnectionManager:
 
     async def broadcast(self, message: str):
         self.check_existing_connections("Broadcasting to")
-        for pot_id in self.active_connections:
-            await self.active_connections[pot_id].send_text(message)
-            print("Broadcast to Pot {} complete".format(pot_id))
+        if len(self.active_connections) > 0:
+            for pot_id in self.active_connections:
+                await self.active_connections[pot_id].send_text(message)
+                print("Broadcast to Pot {} complete".format(pot_id))
+        else:
+            print("No websocket connections")
 
     async def process_message(self, data):
         try:
-            message_obj = validate_model(data)
+            message_obj = await validate_model(data)
             response = crud_manager(message_obj)
             return response
         except Exception as e:
-            return str(e)
+            return e
 
 @router.websocket("/ws/{pot_id}")
 async def websocket_endpoint(websocket: WebSocket, pot_id: str):
-    print(manager)
+    # print(manager)
     await manager.connect(websocket)
 
     try:
@@ -68,6 +67,7 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     except pydantic.error_wrappers.ValidationError as e:
         print("Invalid data model")
         print(e)           
+        await manager.send_personal_message("Invalid data model", pot_id)
 
     except WebSocketDisconnect:
         print("------------------")

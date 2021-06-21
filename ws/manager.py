@@ -4,7 +4,6 @@ from lib.firebase import pots_collection
 
 def crud_manager(message: Message):
     pot_id = message.potId
-    print(message)
     try:
         # Create
         if message.action == Action.create:
