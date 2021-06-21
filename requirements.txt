@@ -3,5 +3,5 @@ uvicorn[standard]
 firebase_admin
 python-dotenv
 apscheduler
-httpx
+aiohttp
 pytest
