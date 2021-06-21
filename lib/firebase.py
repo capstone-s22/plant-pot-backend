@@ -4,14 +4,11 @@ import asyncio
 import threading
 import base64
 from firebase_admin import credentials, firestore, initialize_app
-from dotenv import load_dotenv
 import json
 from asgiref.sync import async_to_sync
 
 sys.path.append("..")
 from ws import ws_server
-
-load_dotenv()
 
 FIREBASE_CRED = "credentials/plant-pot-firebase-admin.json"
 COLLECTION_NAME = "POTS"

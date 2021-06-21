@@ -1,25 +1,19 @@
+import os
 from ws.pot import new_pot_registration
 from validations.schemas import Message, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
 from lib.firebase import pots_collection
 import requests
 import aiohttp
 
-CV_SERVER_URL_PREFIX = "http://localhost:3002/cv"
 
+CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
 
-async def task(pot_id, encoded_img_data):
+async def inference(pot_id, encoded_img_data):
     data = { "potId": pot_id, "encoded_data": encoded_img_data }
-    resp = requests.get(url=CV_SERVER_URL_PREFIX, json=data)
-    print(resp.json())
-
-    # async with httpx.AsyncClient() as client:
-    #     response = await client.get(CV_SERVER_URL_PREFIX, json=data)
-    #     print(response.json())
-
     async with aiohttp.request(method='GET', url=CV_SERVER_URL_PREFIX, json=data) as resp:
         assert resp.status == 200
         data = await resp.json()
-        return data
+        return data['greenPointVal'], data['yellowPointVal']
 
 async def crud_manager(message: Message):
     pot_id = message.potId
@@ -56,7 +50,8 @@ async def crud_manager(message: Message):
                 elif pot_data_dict["field"] == PotDataStr.image :
                     parameter = "Image"
                     encoded_img_data = pot_data_dict["value"]
-                    await task(pot_id, encoded_img_data)
+                    green_point_val, yellow_point_val = await inference(pot_id, encoded_img_data)
+                    print(green_point_val, yellow_point_val)
 
             return "{} for Pot {} updated.".format(parameter, pot_id)
             # return "{} for Pot {} changed to {}.".format(pot_data_dict["field"], pot_id, sensor_value)
