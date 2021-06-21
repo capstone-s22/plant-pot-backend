@@ -2,4 +2,5 @@ fastapi
 uvicorn[standard]
 firebase_admin
 python-dotenv
-schedule
+apscheduler
+pytest

@@ -3,7 +3,7 @@ import uvicorn
 
 from ws import ws_server
 from router import pots
-# from lib import scheduler
+from scheduler import scheduler
 
 # Initialize FastAPI app
 app = FastAPI()
