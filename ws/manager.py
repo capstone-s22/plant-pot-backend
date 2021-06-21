@@ -1,8 +1,27 @@
 from ws.pot import new_pot_registration
 from validations.schemas import Message, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
 from lib.firebase import pots_collection
+import requests
+import aiohttp
 
-def crud_manager(message: Message):
+CV_SERVER_URL_PREFIX = "http://localhost:3002/cv"
+
+
+async def task(pot_id, encoded_img_data):
+    data = { "potId": pot_id, "encoded_data": encoded_img_data }
+    resp = requests.get(url=CV_SERVER_URL_PREFIX, json=data)
+    print(resp.json())
+
+    # async with httpx.AsyncClient() as client:
+    #     response = await client.get(CV_SERVER_URL_PREFIX, json=data)
+    #     print(response.json())
+
+    async with aiohttp.request(method='GET', url=CV_SERVER_URL_PREFIX, json=data) as resp:
+        assert resp.status == 200
+        data = await resp.json()
+        return data
+
+async def crud_manager(message: Message):
     pot_id = message.potId
     try:
         # Create
@@ -33,6 +52,11 @@ def crud_manager(message: Message):
                     # TODO: Retrieve latest session if keeping track
                     firestore_input = {"sessions.1.{}.value".format(pot_data_dict["field"]) : sensor_value}
                     pots_collection.document(pot_id).update(firestore_input)
+
+                elif pot_data_dict["field"] == PotDataStr.image :
+                    parameter = "Image"
+                    encoded_img_data = pot_data_dict["value"]
+                    await task(pot_id, encoded_img_data)
 
             return "{} for Pot {} updated.".format(parameter, pot_id)
             # return "{} for Pot {} changed to {}.".format(pot_data_dict["field"], pot_id, sensor_value)

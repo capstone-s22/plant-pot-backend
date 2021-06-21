@@ -13,4 +13,4 @@ app.include_router(pots.router)
 app.include_router(ws_server.router)
 
 if __name__ == '__main__':
-    sys.exit("Run: `uvicorn main:app --reload --port 3001` instead")
+    sys.exit("Run: `uvicorn main:app --reload --port 8000` instead")

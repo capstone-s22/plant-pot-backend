@@ -3,7 +3,7 @@
 ## To start:
 * Create virtual environment
 * Download and install requirements `pip3 install requirements.txt`
-* Run FastAPI app in development mode: `uvicorn main:app --reload --port 3001`
+* Run FastAPI app in development mode: `uvicorn main:app --reload --port 8000`
 
 ## To launch in Heroku:
 * Encode Firebase credentials: 

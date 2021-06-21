@@ -47,7 +47,7 @@ class ConnectionManager:
     async def process_message(self, data):
         try:
             message_obj = await validate_model(data)
-            response = crud_manager(message_obj)
+            response = await crud_manager(message_obj)
             return response
         except Exception as e:
             return e

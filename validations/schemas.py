@@ -33,6 +33,7 @@ class Action(str, Enum):
 
 class PotDataStr(str, Enum):
     pot = "pot"
+    image = "image"
     class Config:  
         use_enum_values = True
 
