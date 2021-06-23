@@ -6,6 +6,5 @@ class CheckIn(BaseModel):
     showCheckIn: bool = False
     checkInStreak: int = 0
     checkInLastDate: Union[None, datetime] = None
-    checkInToopTipDone: bool = False
     checkInCoinsReward: int = 0
     checkInLeavesReward: int = 0

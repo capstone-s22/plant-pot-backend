@@ -11,6 +11,4 @@ class QuizDifficulty(str, Enum):
 class Quiz(BaseModel):
     showQuiz: bool = False
     quizDifficulty: QuizDifficulty = QuizDifficulty.easy
-    quizNumber: int = 0
-    quizTooltipDone: bool = False
-
+    quizDayNumber: int = 0

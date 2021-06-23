@@ -12,7 +12,6 @@ from models.GreenPointValues import GreenPointValues
 from models.Reward import Reward
 from models.Quiz import Quiz, QuizDifficulty
 from models.CheckIn import CheckIn
-from models.Tutorial import Tutorial
 
 '''
 Pot to Backend JSON messages
