@@ -10,7 +10,7 @@ def new_pot_registration(pot_id):
 
         new_pot.sessions[new_session.session_id]= new_session
 
-        return new_pot.dict()
+        return new_pot
     except Exception as e:
         print(e)
         return "ERROR"

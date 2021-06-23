@@ -1,10 +1,9 @@
 import os
-from ws.pot import new_pot_registration
-from validations.schemas import Message, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
-from lib.firebase import pots_collection
-import requests
 import aiohttp
-
+from ws.pot import new_pot_registration
+from validations.schemas import Pot, Message, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
+from lib.firebase import pots_collection
+from scheduler import quiz
 
 CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
 
@@ -24,8 +23,12 @@ async def crud_manager(message: Message):
                 # Create Pot
                 if pot_data_dict["field"] == PotDataStr.pot:
                     pot_id_to_create = pot_data_dict["value"]
-                    firestore_input = new_pot_registration(pot_id_to_create)
-                    pots_collection.document(pot_id).set(firestore_input)
+                    new_pot: Pot = new_pot_registration(pot_id_to_create)
+                    # Add pot in firebase
+                    pots_collection.document(pot_id).set(new_pot.dict())
+                    # Add quiz trigger dates in firebase
+                    # print(new_pot.potRegisteredTime)
+                    quiz.schedule_quiz(new_pot.potId, new_pot.potRegisteredTime)
             return "Pod {} created.".format(pot_id)
         
         # Update
@@ -55,7 +58,6 @@ async def crud_manager(message: Message):
 
             return "{} for Pot {} updated.".format(parameter, pot_id)
             # return "{} for Pot {} changed to {}.".format(pot_data_dict["field"], pot_id, sensor_value)
-
 
         else:
             raise Exception("Invalid Action")
