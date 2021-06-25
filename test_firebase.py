@@ -35,8 +35,10 @@ pots_collection = db.collection(COLLECTION_NAME)
 
 # result = pots_collection.where(u'sessions.`1`.session_id', u'==', "1").get()
 # result = pots_collection.where('sessions.`1`.session_id', '==', "1").get()
-result = pots_collection.where('sessions.`1`.quiz.quizDates', 'array_contains', "20210626").get()
-# print(result)
+# result = pots_collection.where('sessions.`1`.quiz.quizDates', 'array_contains', "20210626").get()
+result = pots_collection.get()
+
 for i in result:
-    print(i.to_dict()['potId'])
-    print(i.to_dict()['sessions']['1']['quiz']['quizDates'].index("20210626"))
+    pot_id = i.to_dict()['potId']
+    firestore_input = {"sessions.`1`.checkIn.showCheckIn": False}
+    pots_collection.document(pot_id).update(firestore_input)

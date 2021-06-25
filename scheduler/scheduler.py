@@ -7,25 +7,42 @@ async def broadcast():
     await manager.broadcast("Hi from server")
 
 async def daily_check_in_alert():
-    await manager.broadcast("CheckIn")
+    all_pots = pots_collection.get()
+
+    for pot in all_pots:
+        pot_id = pot.to_dict()['potId']
+        firestore_input = {"sessions.`1`.checkIn.showCheckIn": True}
+        # Update Firebase to alert mobile app
+        pots_collection.document(pot_id).update(firestore_input)
+        # Alert Pot
+        await manager.send_personal_message("Check In Alert", pot_id)
+        print("Sent Check In alert to Pot {}".format(pot_id))
+        # TODO: Need a message queue for messages not sent to pots with failed websocket connection
 
 async def quiz_alert():
     current_date = datetime.utcnow().strftime('%Y%m%d')
-    print(current_date)
     # NOTE: For Python, all string fields with an integer value like '1' require ``
     retrieved_pots = pots_collection.where('sessions.`1`.quiz.quizDates', 'array_contains', current_date).get()
-    print(retrieved_pots)
+
     for pot in retrieved_pots:
         pot_id = pot.to_dict()["potId"]
         quiz_day_number_idx = pot.to_dict()['sessions']['1']['quiz']['quizDates'].index(current_date)
         quiz_day_number = pot.to_dict()['sessions']['1']['quiz']['quizDayNumbers'][quiz_day_number_idx]
-        print("Sending quiz alert to {}".format(pot_id))
+        firestore_input = {"sessions.`1`.quiz.showQuiz": True,
+                            "sessions.`1`.quiz.currentQuizDayNumber" : quiz_day_number}
+        # Update Firebase to alert mobile app
+        pots_collection.document(pot_id).update(firestore_input)
+        print("Updated Quiz {} alert for Pot {} to database".format(quiz_day_number, pot_id))
+        # Alert Pot
         await manager.send_personal_message("Day {} Quiz Alert".format(quiz_day_number), pot_id)
+        print("Sent Quiz {} alert to Pot {}".format(quiz_day_number, pot_id))
+
+
 
 
 scheduler = AsyncIOScheduler({'apscheduler.timezone': 'UTC'})
 
 # UTC Time is 8 hours ahead of SGT, so UTC 1600 == SGT 0000
 scheduler.add_job(daily_check_in_alert, 'cron', hour=16)
-scheduler.add_job(quiz_alert, 'cron', hour=17, minute=35)
+scheduler.add_job(quiz_alert, 'cron', hour=16)
 scheduler.start()
