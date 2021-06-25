@@ -3,7 +3,6 @@ import aiohttp
 from ws.pot import new_pot_registration
 from validations.schemas import Pot, Message, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
 from lib.firebase import pots_collection
-from scheduler import quiz
 
 CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
 
