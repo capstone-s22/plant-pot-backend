@@ -12,7 +12,8 @@ async def daily_check_in_alert():
 
 async def quiz_alert():
     current_date = datetime.utcnow().strftime('%Y%m%d')
-    result = QUIZ_COLLECTION.document(current_date).get().to_dict()
+    # result = QUIZ_COLLECTION.document(current_date).get().to_dict()
+    result = QUIZ_COLLECTION.where(u'capital', u'==', True).get().to_dict()
     print(result)
     await manager.broadcast("CheckIn")
     # {'6666': {'quizDayNumber': 1}, '7777': {'quizDayNumber': 1}, '8888': {'quizDayNumber': 1}}

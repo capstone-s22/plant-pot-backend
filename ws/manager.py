@@ -28,7 +28,7 @@ async def crud_manager(message: Message):
                     pots_collection.document(pot_id).set(new_pot.dict())
                     # Add quiz trigger dates in firebase
                     # print(new_pot.potRegisteredTime)
-                    quiz.schedule_quiz(new_pot.potId, new_pot.potRegisteredTime)
+                    # quiz.schedule_quiz(new_pot.potId, new_pot.potRegisteredTime)
             return "Pod {} created.".format(pot_id)
         
         # Update

@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
+from typing import List, Union
 
 class QuizDifficulty(str, Enum):
     easy = "easy"
@@ -11,4 +12,6 @@ class QuizDifficulty(str, Enum):
 class Quiz(BaseModel):
     showQuiz: bool = False
     quizDifficulty: QuizDifficulty = QuizDifficulty.easy
-    quizDayNumber: int = 0
+    currentQuizDayNumber: int = 0
+    quizDayNumbers: List[int] = [1,3,6,10,13,15,18,22,28,30]
+    quizDates: Union[None, List[str]] = None
