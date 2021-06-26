@@ -22,8 +22,8 @@ async def create():
 async def create(new_pot: NewPot):
     try:
         pot_id = new_pot.id
-        data = new_pot_registration(pot_id)
-        pots_collection.document(pot_id).set(data)
+        new_pot = new_pot_registration(pot_id) 
+        pots_collection.document(pot_id).set(new_pot.dict())
         return {"success": True}
     except Exception as e:
         print(e)
