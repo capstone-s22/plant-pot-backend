@@ -1,7 +1,10 @@
 import os
 import aiohttp
+from attr import field
 from ws.pot import new_pot_registration
-from validations.schemas import Pot, Message, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
+from validations.pot2be_schemas import Pot, MessageFromPot, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
+from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr
+
 from lib.firebase import pots_collection
 
 CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
@@ -13,23 +16,20 @@ async def inference(pot_id, encoded_img_data):
         data = await resp.json()
         return data['greenPointVal'], data['yellowPointVal']
 
-async def crud_manager(message: Message):
+async def crud_manager(message: MessageFromPot):
     pot_id = message.potId
+    parameter = ""
     try:
         # Create
         if message.action == Action.create:
             for pot_data_dict in message.data:
                 # Create Pot
                 if pot_data_dict["field"] == PotDataStr.pot:
+                    parameter = "pot"
                     pot_id_to_create = pot_data_dict["value"]
                     new_pot: Pot = new_pot_registration(pot_id_to_create)
                     # Add pot in firebase
                     pots_collection.document(pot_id).set(new_pot.dict())
-                    # Add quiz trigger dates in firebase
-                    # print(new_pot.potRegisteredTime)
-                    # quiz.schedule_quiz(new_pot.potId, new_pot.potRegisteredTime)
-            return "Pod {} created.".format(pot_id)
-        
         # Update
         elif message.action == Action.update:
             for pot_data_dict in message.data:
@@ -55,12 +55,19 @@ async def crud_manager(message: Message):
                     green_point_val, yellow_point_val = await inference(pot_id, encoded_img_data)
                     print(green_point_val, yellow_point_val)
 
-            return "{} for Pot {} updated.".format(parameter, pot_id)
-            # return "{} for Pot {} changed to {}.".format(pot_data_dict["field"], pot_id, sensor_value)
-
         else:
             raise Exception("Invalid Action")
-    
+
+        response = MessageToPot(potId=pot_id, 
+                                data=[PotSendDataDictStr(
+                                    field=PotSendDataStr.acknowledgment,
+                                    value="{} {}".format(message.action.value, parameter))]
+                                )
+        
+        return response
+
     except Exception as e:
         return e
+
+
 

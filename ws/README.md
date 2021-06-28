@@ -178,6 +178,35 @@
 		```
 
 ## From Backend to Pot
+
+* Alert Quiz
+	* Leaves sound effect
+		```json
+		{
+			"action": "update",
+			"data": [
+				{
+					"field": "showQuiz",
+					"potId": "0001",
+					"value": true
+				}
+			]
+		}
+
+* Alert checkIn
+	* Leaves sound effect
+		```json
+		{
+			"action": "update",
+			"data": [
+				{
+					"field": "showCheckIn",
+					"potId": "0001",
+					"value": true
+				}
+			]
+		}
+
 * Rewards sound (daily check-in / quiz)
 	* Leaves sound effect
 		```json
@@ -204,6 +233,7 @@
 				}
 			]
 		}
+
 * Plant Care
 	* Update toAlert
 		```json
@@ -227,3 +257,14 @@
 				},
 			]
 		}
+
+
+
+Water level = 1/0 
+	1 is good, 0 is bad
+Nutrient = float (500.0 - 2000.0) - 
+	800.0 - 2500.0 is good range
+	> 2500 is too much nutrients
+	< 800 is too little 
+Temperature = float
+

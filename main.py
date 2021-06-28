@@ -5,7 +5,7 @@ import sys
 from fastapi import FastAPI
 import uvicorn
 
-from ws import ws_server
+from ws import ws_server, firebase_listener
 from router import pots
 from scheduler import scheduler
 

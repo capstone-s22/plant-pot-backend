@@ -5,20 +5,14 @@ import time as time
 from typing import get_type_hints, List, Optional, Dict, Union
 from typing_extensions import TypedDict
 
-from models.Pot import Pot, PotId
-from models.Session import Session, NewSessionInput
-from models.Sensor import Sensor, SensorType, SensorIndicatorRange
-from models.GreenPointValues import GreenPointValues
-from models.Reward import Reward
-from models.Quiz import Quiz, QuizDifficulty
-from models.CheckIn import CheckIn
+from models.Pot import Pot
 
 '''
 Pot to Backend JSON messages
 '''
 
 async def validate_model(data):
-    return Message.parse_obj(data)
+    return MessageFromPot.parse_obj(data)
 
 class Action(str, Enum):
     create = "create"
@@ -61,7 +55,7 @@ class PotDataDictInt(TypedDict):
     field: PotDataInt
     value: Union[None, int]
 
-class Message(BaseModel):
+class MessageFromPot(BaseModel):
     action: Action
     potId: get_type_hints(Pot)["potId"] # Or Pot.__annotations__["potId"]
     data: List[Union[PotDataDictStr, PotDataDictInt, PotDataDictBool]]

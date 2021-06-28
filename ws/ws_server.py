@@ -3,7 +3,7 @@ from typing import Dict
 # from typing_extensions import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from validations.schemas import validate_model
+from validations import be2pot_schemas, pot2be_schemas
 from ws.manager import crud_manager
 
 router = APIRouter()
@@ -27,11 +27,19 @@ class ConnectionManager:
         del self.active_connections[pot_id]
         self.check_existing_connections("After disconnect")
 
-    async def send_personal_message(self, message: str, pot_id: str):
+    async def send_personal_message_text(self, message: str, pot_id: str):
         self.check_existing_connections("Before sending message")
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
+        else:
+            print("Websocket for Pot {} not found".format(pot_id))
+
+    async def send_personal_message_json(self, message: dict, pot_id: str):
+        self.check_existing_connections("Before sending message (json)")
+        if pot_id in self.active_connections:
+            websocket: WebSocket = self.active_connections[pot_id]
+            await websocket.send_json(message)
         else:
             print("Websocket for Pot {} not found".format(pot_id))
 
@@ -46,9 +54,9 @@ class ConnectionManager:
 
     async def process_message(self, data):
         try:
-            message_obj = await validate_model(data)
-            response = await crud_manager(message_obj)
-            return response
+            msg_obj: pot2be_schemas.MessageFromPot = await pot2be_schemas.validate_model(data)
+            response: be2pot_schemas.MessageToPot = await crud_manager(msg_obj)
+            return response.dict()
         except Exception as e:
             return e
 
@@ -61,13 +69,13 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
         while True:
             data = await websocket.receive_json()
             response = await manager.process_message(data)
-            await manager.send_personal_message(response, pot_id)
+            await manager.send_personal_message_json(response, pot_id)
             # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
     except pydantic.error_wrappers.ValidationError as e:
         print("Invalid data model")
         print(e)           
-        await manager.send_personal_message("Invalid data model", pot_id)
+        await manager.send_personal_message_text("Invalid data model", pot_id)
 
     except WebSocketDisconnect:
         print("------------------")

@@ -17,6 +17,7 @@ class Seed(str, Enum):
 class PetType(str, Enum):
     dog = "dog"
     cat = "cat"
+    beaver = "beaver"
     class Config:  
         use_enum_values = True
 

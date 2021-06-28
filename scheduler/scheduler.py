@@ -15,7 +15,7 @@ async def daily_check_in_alert():
         # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
         # Alert Pot
-        await manager.send_personal_message("Check In Alert", pot_id)
+        await manager.send_personal_message_text("Check In Alert", pot_id)
         print("Sent Check In alert to Pot {}".format(pot_id))
         # TODO: Need a message queue for messages not sent to pots with failed websocket connection
 
@@ -34,7 +34,7 @@ async def quiz_alert():
         pots_collection.document(pot_id).update(firestore_input)
         print("Updated Quiz {} alert for Pot {} to database".format(quiz_day_number, pot_id))
         # Alert Pot
-        await manager.send_personal_message("Day {} Quiz Alert".format(quiz_day_number), pot_id)
+        await manager.send_personal_message_text("Day {} Quiz Alert".format(quiz_day_number), pot_id)
         print("Sent Quiz {} alert to Pot {}".format(quiz_day_number, pot_id))
 
 
