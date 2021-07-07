@@ -259,12 +259,3 @@
 		}
 
 
-
-Water level = 1/0 
-	1 is good, 0 is bad
-Nutrient = float (500.0 - 2000.0) - 
-	800.0 - 2500.0 is good range
-	> 2500 is too much nutrients
-	< 800 is too little 
-Temperature = float
-

@@ -1,7 +1,7 @@
 import os
 import aiohttp
 from attr import field
-from ws.pot import new_pot_registration
+from lib.pot import new_pot_registration
 from validations.pot2be_schemas import Pot, MessageFromPot, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
 from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr
 

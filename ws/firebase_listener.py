@@ -32,16 +32,16 @@ async def listen_collection(collection):
                 triggers = {
                     PotSendDataBool.alertLeavesSound: {
                         "fs_path" : "session.reward.{}".format(PotSendDataBool.alertLeavesSound),
-                        "value": pot_obj.sessions['1'].reward.alertLeavesSound
+                        "value": pot_obj.session.reward.alertLeavesSound
                         },
                     PotSendDataBool.alertCoinsSound: {
                         "fs_path" : "session.reward.{}".format(PotSendDataBool.alertCoinsSound),
-                        "value": pot_obj.sessions['1'].reward.alertCoinsSound
+                        "value": pot_obj.session.reward.alertCoinsSound
                         },
                     }
 
                 for trigger_field in triggers:
-                    print(pot_obj.sessions['1'].reward)
+                    print(pot_obj.session.reward)
                     if triggers[trigger_field]["value"]:
                         response = MessageToPot(potId=pot_id, 
                                                 data=[PotSendDataDictBool(

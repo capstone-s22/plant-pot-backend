@@ -2,7 +2,7 @@ import sys
 from fastapi import APIRouter
 from models.Pot import NewPot
 from lib import utils
-from ws.pot import new_pot_registration
+from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
 
 sys.path.append("..")

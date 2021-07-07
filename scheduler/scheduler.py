@@ -11,7 +11,7 @@ async def daily_check_in_alert():
 
     for pot in all_pots:
         pot_id = pot.to_dict()['potId']
-        firestore_input = {"sessions.`1`.checkIn.showCheckIn": True}
+        firestore_input = {"session.checkIn.showCheckIn": True}
         # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
         # Alert Pot
@@ -22,14 +22,14 @@ async def daily_check_in_alert():
 async def quiz_alert():
     current_date = datetime.utcnow().strftime('%Y%m%d')
     # NOTE: For Python, all string fields with an integer value like '1' require ``
-    retrieved_pots = pots_collection.where('sessions.`1`.quiz.quizDates', 'array_contains', current_date).get()
+    retrieved_pots = pots_collection.where('session.quiz.quizDates', 'array_contains', current_date).get()
 
     for pot in retrieved_pots:
         pot_id = pot.to_dict()["potId"]
-        quiz_day_number_idx = pot.to_dict()['sessions']['1']['quiz']['quizDates'].index(current_date)
-        quiz_day_number = pot.to_dict()['sessions']['1']['quiz']['quizDayNumbers'][quiz_day_number_idx]
-        firestore_input = {"sessions.`1`.quiz.showQuiz": True,
-                            "sessions.`1`.quiz.currentQuizDayNumber" : quiz_day_number}
+        quiz_day_number_idx = pot.to_dict()['session']['quiz']['quizDates'].index(current_date)
+        quiz_day_number = pot.to_dict()['session']['quiz']['quizDayNumbers'][quiz_day_number_idx]
+        firestore_input = {"session.quiz.showQuiz": True,
+                            "session.quiz.currentQuizDayNumber" : quiz_day_number}
         # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
         print("Updated Quiz {} alert for Pot {} to database".format(quiz_day_number, pot_id))

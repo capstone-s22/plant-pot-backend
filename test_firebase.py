@@ -33,12 +33,12 @@ cred = credentials.Certificate(get_firebase_credentials())
 db = firestore.client()
 pots_collection = db.collection(COLLECTION_NAME)
 
-# result = pots_collection.where(u'sessions.`1`.session_id', u'==', "1").get()
-# result = pots_collection.where('sessions.`1`.session_id', '==', "1").get()
-# result = pots_collection.where('sessions.`1`.quiz.quizDates', 'array_contains', "20210626").get()
+# result = pots_collection.where(u'session.session_id', u'==', "1").get()
+# result = pots_collection.where('session.session_id', '==', "1").get()
+# result = pots_collection.where('session.quiz.quizDates', 'array_contains', "20210626").get()
 result = pots_collection.get()
 
 for i in result:
     pot_id = i.to_dict()['potId']
-    firestore_input = {"sessions.`1`.checkIn.showCheckIn": False}
+    firestore_input = {"session.checkIn.showCheckIn": False}
     pots_collection.document(pot_id).update(firestore_input)
