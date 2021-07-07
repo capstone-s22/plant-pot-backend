@@ -38,7 +38,7 @@ async def crud_manager(message: MessageFromPot):
                     parameter = "checkIn"
                     show_check_in = pot_data_dict["value"]
                     # TODO: Retrieve latest session if keeping track
-                    firestore_input = {"sessions.1.checkIn.showCheckIn".format() : show_check_in}
+                    firestore_input = {"session.checkIn.showCheckIn".format() : show_check_in}
                     pots_collection.document(pot_id).update(firestore_input)
 
                 # Update sensor values
@@ -46,7 +46,7 @@ async def crud_manager(message: MessageFromPot):
                     parameter = "Sensor values"
                     sensor_value = pot_data_dict["value"]
                     # TODO: Retrieve latest session if keeping track
-                    firestore_input = {"sessions.1.{}.value".format(pot_data_dict["field"]) : sensor_value}
+                    firestore_input = {"session.{}.value".format(pot_data_dict["field"]) : sensor_value}
                     pots_collection.document(pot_id).update(firestore_input)
 
                 elif pot_data_dict["field"] == PotDataStr.image :

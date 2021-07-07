@@ -13,15 +13,12 @@ def scheduled_quiz_dates(start_date, quiz_day_intervals):
 
 def new_pot_registration(pot_id):
     try:
-        new_pot = Pot(potId=pot_id)
         new_session = Session(
             newSessInput=NewSessionInput(potId=pot_id),
             )   
-
+        new_pot = Pot(potId=pot_id, session=new_session)
         quiz_dates = scheduled_quiz_dates(new_session.sessionStartTime, new_session.quiz.quizDayNumbers)
         new_session.quiz.quizDates = quiz_dates
-
-        new_pot.sessions[new_session.session_id]= new_session
 
         return new_pot
     except Exception as e:
