@@ -8,7 +8,7 @@ import uvicorn
 from ws import ws_server, firebase_listener
 from router import pots
 from scheduler import scheduler
-
+from lib import check_in
 # Initialize FastAPI app
 
 

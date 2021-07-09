@@ -25,15 +25,11 @@ class PotSendDataBool(str, Enum):
     alertWLSensor = "sensors.waterLevel.toAlert"
     alertLeavesSound = "alertLeavesSound"
     alertCoinsSound = "alertCoinsSound"
-    
-    class Config:  
-        use_enum_values = True
 
 class PotSendDataStr(str, Enum):
     acknowledgment = "ack"
-    class Config:  
-        use_enum_values = True
-        
+    error = "error"
+
 class PotSendDataDictBool(TypedDict):
     field: PotSendDataBool
     value: Union[None, bool]

@@ -5,6 +5,7 @@ import threading
 import base64
 from firebase_admin import credentials, firestore, initialize_app
 import json
+from models.Pot import Pot
 
 sys.path.append("..")
 from ws import ws_server
@@ -38,7 +39,8 @@ pots_collection = db.collection(COLLECTION_NAME)
 # result = pots_collection.where('session.quiz.quizDates', 'array_contains', "20210626").get()
 result = pots_collection.get()
 
-for i in result:
-    pot_id = i.to_dict()['potId']
-    firestore_input = {"session.checkIn.showCheckIn": False}
-    pots_collection.document(pot_id).update(firestore_input)
+# for i in result:
+#     pot_id = i.to_dict()['potId']
+#     firestore_input = {"session.checkIn.showCheckIn": False}
+#     pots_collection.document(pot_id).update(firestore_input)
+

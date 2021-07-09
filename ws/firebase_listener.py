@@ -32,11 +32,11 @@ async def listen_collection(collection):
                 triggers = {
                     PotSendDataBool.alertLeavesSound: {
                         "fs_path" : "session.reward.{}".format(PotSendDataBool.alertLeavesSound),
-                        "value": pot_obj.session.reward.alertLeavesSound
+                        "value": pot_obj.session.reward.rewardSound.alertLeavesSound
                         },
                     PotSendDataBool.alertCoinsSound: {
                         "fs_path" : "session.reward.{}".format(PotSendDataBool.alertCoinsSound),
-                        "value": pot_obj.session.reward.alertCoinsSound
+                        "value": pot_obj.session.reward.rewardSound.alertCoinsSound
                         },
                     }
 
