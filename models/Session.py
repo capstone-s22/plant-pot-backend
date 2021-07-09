@@ -29,6 +29,7 @@ class NewSessionInput(BaseModel):
         
 #TODO: integrate sensor type as key in sensors
 class Session(BaseModel):
+    sessionId: int = 1
     sessionStartTime: datetime = datetime.utcnow()
     sessionEndTime: Union[None, datetime] = None
     reward: Reward = Reward()
