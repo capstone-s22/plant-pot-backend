@@ -17,9 +17,6 @@ class Action(str, Enum):
     read = "read"
     update = "update"
 
-    class Config:  
-        use_enum_values = True
-
 class PotSendDataBool(str, Enum):
     showCheckIn = "showCheckIn"
     showQuiz = "showQuiz"
@@ -49,7 +46,8 @@ class MessageToPot(BaseModel):
     action: Action = Action.update
     potId: get_type_hints(Pot)["potId"] # Or Pot.__annotations__["potId"]
     data: List[Union[PotSendDataDictStr, PotSendDataDictBool]]
-
+    class Config:  
+        use_enum_values = True
 
 
 

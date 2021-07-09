@@ -2,6 +2,7 @@ import os
 import aiohttp
 from attr import field
 from lib.pot import new_pot_registration
+from models.Plant import Plant
 from validations.pot2be_schemas import Pot, MessageFromPot, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
 from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr
 
@@ -13,9 +14,44 @@ async def inference(pot_id, encoded_img_data):
     data = { "potId": pot_id, "encoded_data": encoded_img_data }
     async with aiohttp.request(method='GET', url=CV_SERVER_URL_PREFIX, json=data) as resp:
         assert resp.status == 200
-        data = await resp.json()
-        return data['greenPointVal'], data['yellowPointVal']
+        response = await resp.json()
+        print(1111)
+        for ring_colour in response:
+            print(response[ring_colour])
+            print(Plant.parse_obj(response[ring_colour])) # Validate data with model
+        print(2222)
+        return response
 
+
+'''
+{
+    "blue": {
+        "ringColour": "blue",
+        "growthStage": "sprouting",
+        "plantHealth": 0.5,
+        "plantSize": 2.0
+    },
+    "red": {
+        "ringColour": "red",
+        "growthStage": "sprouting",
+        "plantHealth": 0.5,
+        "plantSize": 2.0
+    },
+    "peach": {
+        "ringColour": "peach",
+        "growthStage": "sprouting",
+        "plantHealth": 0.5,
+        "plantSize": 2.0
+    },
+    "purple": {
+        "ringColour": "purple",
+        "growthStage": "sprouting",
+        "plantHealth": 0.5,
+        "plantSize": 2.0
+    }
+}
+
+'''
 async def crud_manager(message: MessageFromPot):
     pot_id = message.potId
     parameter = ""
@@ -39,21 +75,21 @@ async def crud_manager(message: MessageFromPot):
                     show_check_in = pot_data_dict["value"]
                     # TODO: Retrieve latest session if keeping track
                     firestore_input = {"session.checkIn.showCheckIn".format() : show_check_in}
-                    pots_collection.document(pot_id).update(firestore_input)
-
+                    
                 # Update sensor values
                 elif pot_data_dict["field"] in [sensor for sensor in PotDataInt]:
                     parameter = "Sensor values"
                     sensor_value = pot_data_dict["value"]
                     # TODO: Retrieve latest session if keeping track
                     firestore_input = {"session.{}.value".format(pot_data_dict["field"]) : sensor_value}
-                    pots_collection.document(pot_id).update(firestore_input)
-
+                    
                 elif pot_data_dict["field"] == PotDataStr.image :
                     parameter = "Image"
                     encoded_img_data = pot_data_dict["value"]
-                    green_point_val, yellow_point_val = await inference(pot_id, encoded_img_data)
-                    print(green_point_val, yellow_point_val)
+                    plant_cv_inference = await inference(pot_id, encoded_img_data)
+                    firestore_input = {"session.plants" : plant_cv_inference}
+                    
+                pots_collection.document(pot_id).update(firestore_input)
 
         else:
             raise Exception("Invalid Action")
@@ -61,7 +97,7 @@ async def crud_manager(message: MessageFromPot):
         response = MessageToPot(potId=pot_id, 
                                 data=[PotSendDataDictStr(
                                     field=PotSendDataStr.acknowledgment,
-                                    value="{} {}".format(message.action.value, parameter))]
+                                    value="{} {}".format(message.action, parameter))]
                                 )
         
         return response
