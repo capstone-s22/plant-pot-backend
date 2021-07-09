@@ -1,17 +1,25 @@
 from models.Reward import RewardIncrement, RewardSound
 from models.Plant import Plant
+from models.CheckIn import CheckIn
 
 C = 10
 
-def get_check_in_reward(plants):
+def get_check_in_reward(plants, check_in_info):
     leaves_reward = 0
+    coins_reward = 0
     for ring_colour in plants:
         plant: Plant = plants[ring_colour]
         leaves_reward += (plant.plantSize*(plant.plantHealth + 1))/10 + C
 
+    check_in_obj = CheckIn.parse_obj(check_in_info)
+    if check_in_obj.checkInStreak == 5:
+        coins_reward = 20
+
     check_in_reward = RewardIncrement(
-        leavesRewardIncrement=leaves_reward
+        leavesRewardIncrement=leaves_reward,
+        coinsRewardIncrement=coins_reward
     )
+
     return check_in_reward.dict()
 
 def get_plant_care_reward():

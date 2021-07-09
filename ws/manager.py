@@ -50,7 +50,7 @@ async def crud_manager(message: MessageFromPot):
                     pot: Pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
                     if pot.session.checkIn.showCheckIn:
                         check_in_update = get_check_in_update(pot.session.checkIn)
-                        check_in_reward = get_check_in_reward(pot.session.plants)
+                        check_in_reward = get_check_in_reward(pot.session.plants, check_in_update)
                         reward_sounds = get_reward_sounds(check_in_reward)
                         firestore_input = {
                             "session.checkIn": check_in_update,
