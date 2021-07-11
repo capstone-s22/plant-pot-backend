@@ -1,32 +1,18 @@
-import os
-import aiohttp
-from attr import field
+import sys
 
-from models.Plant import Plant
-from validations.pot2be_schemas import Pot, MessageFromPot, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
-from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr
+from validations.pot2be_schemas import MessageFromPot, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
+from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr, PotSendDataDictBool
+from models.Pot import Pot
 from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
-from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_sounds
+from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_sounds, get_harvest_reward
 from lib.check_in import get_check_in_update
-
-CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
-
-async def inference(pot_id, encoded_img_data):
-    data = { "potId": pot_id, "encoded_data": encoded_img_data }
-    async with aiohttp.request(method='GET', url=CV_SERVER_URL_PREFIX, json=data) as resp:
-        assert resp.status == 200
-        response = await resp.json()
-        for ring_colour in response:
-            try:
-                Plant.parse_obj(response[ring_colour]) # Validate data with model
-            except Exception as e:
-                return e
-        return response
+from lib.plant_care import cv_inference, get_harvests_completed, harvest_ready
 
 async def crud_manager(message: MessageFromPot):
     pot_id = message.potId
     parameter = ""
+    responses = []
     try:
         # Create
         if message.action == Action.create:
@@ -66,34 +52,50 @@ async def crud_manager(message: MessageFromPot):
                     sensor_value = pot_data_dict["value"]
                     # TODO: Retrieve latest session if keeping track
                     firestore_input = {"session.{}.value".format(pot_data_dict["field"]) : sensor_value}
-                    
+
                 elif pot_data_dict["field"] == PotDataStr.image :
                     parameter = "image"
                     encoded_img_data = pot_data_dict["value"]
-                    plant_cv_inference = await inference(pot_id, encoded_img_data)
-                    firestore_input = {"session.plants" : plant_cv_inference}
-                    
+                    current_pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
+                    new_plants_status = await cv_inference(pot_id, encoded_img_data)
+
+                    # Dont need to check if user indication, users may harvest without using app
+                    if harvest_ready(new_plants_status):
+                        harvest_alert = MessageToPot(potId=pot_id, 
+                                                data=[PotSendDataDictBool(
+                                                    field=PotSendDataStr.harvest,
+                                                    value="Pot {}'s plants are ready to harvest!".format(pot_id))])
+                        # await ws_manager.send_personal_message_json(harvest_alert.dict(), pot_id)
+                        responses.append(harvest_alert)
+
+                    harvest_count = get_harvests_completed(current_pot, new_plants_status)
+                    harvest_reward = get_harvest_reward(harvest_count)
+                    reward_sounds = get_reward_sounds(harvest_reward)
+                    firestore_input = {
+                        "session.plants" : new_plants_status,
+                        "session.reward.plantCareReward": harvest_reward,
+                        "session.reward.rewardSound": reward_sounds
+                        }
                 pots_collection.document(pot_id).update(firestore_input)
 
         else:
             raise Exception("Invalid Action")
-
-        response = MessageToPot(potId=pot_id, 
+        ack_response = MessageToPot(potId=pot_id, 
                                 data=[PotSendDataDictStr(
                                     field=PotSendDataStr.acknowledgment,
                                     value="{} {}".format(message.action, parameter))]
                                 )
-        
-        return response
+        responses.append(ack_response)
+        return responses
 
     except Exception as e:
-        response = MessageToPot(potId=pot_id, 
+        err_response = MessageToPot(potId=pot_id, 
                                 data=[PotSendDataDictStr(
                                     field=PotSendDataStr.error,
                                     value="Error: {}".format(e))]
                                 )
-        
-        return response
+        responses.append(err_response)
+        return responses
 
 
 

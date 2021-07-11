@@ -4,6 +4,17 @@ from models.CheckIn import CheckIn
 
 C = 10
 
+def get_harvest_reward(harvest_count):
+    leaves_reward = harvest_count*50
+    coins_reward = harvest_count*100
+    plant_care_reward = RewardIncrement(
+        coinsRewardIncrement=coins_reward,
+        leavesRewardIncrement=leaves_reward
+    )
+
+    return plant_care_reward.dict()
+    
+
 def get_check_in_reward(plants, check_in_info):
     leaves_reward = 0
     coins_reward = 0

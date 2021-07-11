@@ -1,25 +1,25 @@
 import sys
 from fastapi import APIRouter
-from models.Pot import NewPot
+from models.Pot import PotHttpReq
 from lib import utils
 from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
 
 sys.path.append("..")
-from ws.ws_server import manager
+from ws.ws_server import ws_manager
 router = APIRouter()
 
 @router.get('/health')
-async def create():
+async def health():
     try:
-        manager.check_existing_connections()
-        await manager.broadcast("Broadcast")
+        ws_manager.check_existing_connections()
+        await ws_manager.broadcast("Broadcast")
         return {"health check": True}
     except Exception as e:
         return f"An Error Occured: {e}"
 
 @router.post('/add')
-async def create(new_pot: NewPot):
+async def create(new_pot: PotHttpReq):
     try:
         pot_id = new_pot.id
         new_pot = new_pot_registration(pot_id) 

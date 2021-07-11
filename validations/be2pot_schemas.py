@@ -29,6 +29,8 @@ class PotSendDataBool(str, Enum):
 class PotSendDataStr(str, Enum):
     acknowledgment = "ack"
     error = "error"
+    image = "image"
+    harvest = "harvest"
 
 class PotSendDataDictBool(TypedDict):
     field: PotSendDataBool

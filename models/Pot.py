@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Dict, Union
+from typing import Dict, Union, get_type_hints
 from uuid import UUID
 from models.Session import Session
 
@@ -14,5 +14,5 @@ class Pot(BaseModel):
     potRegisteredTime: datetime = datetime.utcnow()
     session: Session
 
-class NewPot(BaseModel):
-    id: str
+class PotHttpReq(BaseModel):
+    id: get_type_hints(Pot)["potId"] # Or Pot.__annotations__["potId"]

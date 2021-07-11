@@ -1,5 +1,5 @@
 import pydantic
-from typing import Dict
+from typing import Dict, List
 # from typing_extensions import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
@@ -55,30 +55,31 @@ class ConnectionManager:
     async def process_message(self, data):
         try:
             msg_obj: pot2be_schemas.MessageFromPot = await pot2be_schemas.validate_model(data)
-            response: be2pot_schemas.MessageToPot = await crud_manager(msg_obj)
-            return response.dict()
+            responses: List[be2pot_schemas.MessageToPot] = await crud_manager(msg_obj)
+            return responses
         except Exception as e:
             return e
 
 @router.websocket("/ws/{pot_id}")
 async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     # print(manager)
-    await manager.connect(websocket)
+    await ws_manager.connect(websocket)
 
     try:
         while True:
             data = await websocket.receive_json()
-            response = await manager.process_message(data)
-            await manager.send_personal_message_json(response, pot_id)
+            responses: List[be2pot_schemas.MessageToPot] = await ws_manager.process_message(data)
+            for response in responses:
+                await ws_manager.send_personal_message_json(response.dict(), pot_id)
             # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
     except pydantic.error_wrappers.ValidationError as e:
         print("Invalid data model")
         print(e)           
-        await manager.send_personal_message_text("Invalid data model", pot_id)
+        await ws_manager.send_personal_message_text("Invalid data model", pot_id)
 
     except WebSocketDisconnect:
         print("------------------")
-        manager.disconnect(pot_id)
+        ws_manager.disconnect(pot_id)
 
-manager = ConnectionManager()
+ws_manager = ConnectionManager()
