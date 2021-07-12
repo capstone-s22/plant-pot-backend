@@ -35,10 +35,10 @@ class PotDataBool(str, Enum):
     class Config:  
         use_enum_values = True
 
-class PotDataInt(str, Enum):
-    sensorTemperature = "sensors.temperature"
-    sensorNutrientLevel = "sensors.nutrientLevel"
-    sensorWaterLevel = "sensors.waterLevel"
+class PotDataFloat(str, Enum):
+    sensorTemperature = "temperature"
+    sensorNutrientLevel = "nutrientLevel"
+    sensorWaterLevel = "waterLevel"
     class Config:  
         use_enum_values = True
 
@@ -51,14 +51,14 @@ class PotDataDictBool(TypedDict):
     field: PotDataBool
     value: Union[None, bool]
 
-class PotDataDictInt(TypedDict):
-    field: PotDataInt
-    value: Union[None, int]
+class PotDataDictFloat(TypedDict):
+    field: PotDataFloat
+    value: Union[None, float]
 
 class MessageFromPot(BaseModel):
     action: Action
     potId: get_type_hints(Pot)["potId"] # Or Pot.__annotations__["potId"]
-    data: List[Union[PotDataDictStr, PotDataDictInt, PotDataDictBool]]
+    data: List[Union[PotDataDictStr, PotDataDictFloat, PotDataDictBool]]
 
 
 

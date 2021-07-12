@@ -1,3 +1,4 @@
+from models.Sensor import SensorType
 import aiohttp
 from attr import field
 import os
@@ -6,6 +7,7 @@ from datetime import datetime
 
 from models.Plant import Plant, RingColour, GrowthStage
 from models.Pot import Pot
+from models.Sensor import Sensor
 
 CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
 # CV_SERVER_URL_PREFIX = "http://localhost:3002/cv"
@@ -40,10 +42,8 @@ def revise_plants_status(current_pot: Pot, new_plants_status):
         # TODO: Future work: start time of seed planting based on user indication in app, not session start time
         # NOTE: Add replace(tzinfo=None) to avoid error "can't subtract offset-naive and offset-aware datetimes"
         if is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            print(111111)
             plant.growthStage = GrowthStage.seed
         elif is_sprouting(plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            print(22222)
             plant.growthStage = GrowthStage.sprouting
         # NOTE: After harvest, slot will be empty so None. For UT, no new seeds after harvest, so keep it at None
         # TODO: Ideally to remove this once UI allows users to indicate to plant new seed
@@ -64,7 +64,6 @@ def harvest_ready(new_plants_status):
     return False
 
 def is_harvested(old_plant_obj: Plant, new_plant_obj: Plant):
-    print(old_plant_obj.growthStage, new_plant_obj.growthStage)
     # NOTE: since currently seed and sprout hard to be differentiated
     return (old_plant_obj.growthStage == GrowthStage.harvest 
             and (new_plant_obj.growthStage == GrowthStage.seed or new_plant_obj.growthStage == GrowthStage.sprouting)) 
@@ -89,17 +88,25 @@ def get_harvests_completed(current_pot: Pot, new_plants_status):
 
     return harvest_count, after_harvest_plants_status
 
-def is_water_level_healthy(water_level_value: int):
-    return "Healthy" if water_level_value == 1 else "Unhealthy"
+def is_water_level_unhealthy(water_level_value: int):
+    return water_level_value == 0
 
-def is_nutrient_level_healthy(nutrient_level_value: float):
-    if nutrient_level_value <800.0:
-        return "Too little nutrients"
-    elif nutrient_level_value > 2000.0:
-        return "Too much nutrients"
+def is_nutrient_level_unhealthy(nutrient_level_value: float):
+    return nutrient_level_value < 800.0 or nutrient_level_value > 2000.0
+
+def is_temperature_unhealthy(temp_value: float):
+    return temp_value < 24.5
+
+def is_sensor_remedy_needed(sensor_type: SensorType, sensor_value):
+    if sensor_type == SensorType.nutrient_level:
+        return is_nutrient_level_unhealthy(sensor_value)
+    elif sensor_type == SensorType.water_level:
+        return is_water_level_unhealthy(sensor_value)
+    elif sensor_type == SensorType.temperature:
+        return is_temperature_unhealthy(sensor_value)
     else:
-        return "Healthy"
-
-def is_temperature_healthy(temp_value: float):
-    return "Healthy" if temp_value > 24.5 else "Unhealthy"
-
+        return None
+    
+def is_remedy_performed(sensor_type: SensorType, last_pot_obj: Pot):
+    last_sensor_alert_status = last_pot_obj.session.sensors[sensor_type].toAlert
+    return last_sensor_alert_status # sensor value remedied, hence alert from True to False
