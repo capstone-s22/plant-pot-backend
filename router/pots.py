@@ -25,7 +25,7 @@ async def create(new_pot: PotHttpReq):
         pot_id = new_pot.id
         new_pot = new_pot_registration(pot_id) 
         pots_collection.document(pot_id).set(new_pot.dict())
-        logging.info("New pot added: {}".format(pot_id))
+        logging.warning("New pot added: {}".format(pot_id))
         return {"success": True}
     except Exception as e:
         print(e)
