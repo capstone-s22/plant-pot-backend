@@ -10,21 +10,21 @@ from models.Pot import Pot
 from models.Sensor import Sensor
 
 CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
-print(CV_SERVER_URL_PREFIX)
 # CV_SERVER_URL_PREFIX = "http://localhost:3002/cv"
 
 #TODO: Add more rules to ensure users dont cheat and iterate the harvest rewards
 async def cv_inference(pot_id, encoded_img_data):
+    if CV_SERVER_URL_PREFIX == None:
+        raise Exception("CV_SERVER_URL_PREFIX not set")
     data = { "potId": pot_id, "encoded_data": encoded_img_data }
     async with aiohttp.request(method='GET', url=CV_SERVER_URL_PREFIX, json=data) as resp:
         assert resp.status == 200
         response = await resp.json()
-        print(response)
         for ring_colour in response:
             try:
                 Plant.parse_obj(response[ring_colour]) # Validate data with model
             except Exception as e:
-                return e
+                raise Exception("CV server's response validation error")
         return response
 
 def is_seed(dt2: datetime, dt1: datetime):
