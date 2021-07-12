@@ -15,3 +15,4 @@ class Reward(BaseModel):
     rewardSound: RewardSound = RewardSound()
     checkInReward: RewardIncrement = RewardIncrement()
     plantCareReward: RewardIncrement = RewardIncrement()
+    harvestReward: RewardIncrement = RewardIncrement()

@@ -97,7 +97,7 @@ async def crud_manager(message: MessageFromPot):
                     reward_sounds = get_reward_sounds(harvest_reward)
                     firestore_input = {
                         "session.plants" : new_plants_status,
-                        "session.reward.plantCareReward": harvest_reward,
+                        "session.reward.harvestReward": harvest_reward,
                         "session.reward.rewardSound": reward_sounds
                         }
                 pots_collection.document(pot_id).update(firestore_input)
