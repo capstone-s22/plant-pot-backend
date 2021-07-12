@@ -2,12 +2,13 @@ import aiohttp
 from attr import field
 import os
 from typing import Dict 
+from datetime import datetime
 
 from models.Plant import Plant, RingColour, GrowthStage
 from models.Pot import Pot
 
-# CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
-CV_SERVER_URL_PREFIX = "http://127.0.0.1:3002/cv"
+CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
+# CV_SERVER_URL_PREFIX = "http://localhost:3002/cv"
 
 #TODO: Add more rules to ensure users dont cheat and iterate the harvest rewards
 async def cv_inference(pot_id, encoded_img_data):
@@ -21,6 +22,39 @@ async def cv_inference(pot_id, encoded_img_data):
             except Exception as e:
                 return e
         return response
+
+def is_seed(dt2: datetime, dt1: datetime):
+    return (dt2 - dt1).days == 0 # Day 1
+
+def is_sprouting(growth_stage: GrowthStage, dt2: datetime, dt1: datetime):
+    # Day 2 onwards until leaves can be seen in seedling stage onwards
+    return ((dt2 - dt1).days >= 1 
+            and (growth_stage == GrowthStage.seed or growth_stage == GrowthStage.sprouting))
+            
+
+# NOTE: Function to revise plant growth stages based on hardcoded features (not entirely relying on CV output)
+def revise_plants_status(current_pot: Pot, new_plants_status):
+    revised_plants_status = {}
+    for ring_colour in new_plants_status:
+        plant = Plant.parse_obj(new_plants_status[ring_colour])
+        # TODO: Future work: start time of seed planting based on user indication in app, not session start time
+        # NOTE: Add replace(tzinfo=None) to avoid error "can't subtract offset-naive and offset-aware datetimes"
+        if is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+            print(111111)
+            plant.growthStage = GrowthStage.seed
+        elif is_sprouting(plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+            print(22222)
+            plant.growthStage = GrowthStage.sprouting
+        # NOTE: After harvest, slot will be empty so None. For UT, no new seeds after harvest, so keep it at None
+        # TODO: Ideally to remove this once UI allows users to indicate to plant new seed
+        elif current_pot.session.plants[ring_colour] == None:
+            plant = None
+        else:
+            pass
+
+        revised_plants_status[ring_colour] = plant.dict() if plant != None else plant
+    return revised_plants_status
+
 def harvest_ready(new_plants_status):
     for ring_colour in new_plants_status:
         plant = Plant.parse_obj(new_plants_status[ring_colour])
@@ -31,20 +65,29 @@ def harvest_ready(new_plants_status):
 
 def is_harvested(old_plant_obj: Plant, new_plant_obj: Plant):
     print(old_plant_obj.growthStage, new_plant_obj.growthStage)
-    return old_plant_obj.growthStage == GrowthStage.harvest and new_plant_obj.growthStage == GrowthStage.seed
+    # NOTE: since currently seed and sprout hard to be differentiated
+    return (old_plant_obj.growthStage == GrowthStage.harvest 
+            and (new_plant_obj.growthStage == GrowthStage.seed or new_plant_obj.growthStage == GrowthStage.sprouting)) 
 
+#TODO: Make a function for converting from new_plants_status to dictionary of plants and back and forth
 def get_harvests_completed(current_pot: Pot, new_plants_status):
     harvest_count = 0
+    after_harvest_plants_status = {}
     new_plants_objs: Dict[RingColour, Plant] = {}
     old_plants_objs: Dict[RingColour, Plant] = current_pot.session.plants
     for ring_colour in new_plants_status:
         new_plants_objs[ring_colour] = Plant.parse_obj(new_plants_status[ring_colour])
 
     for ring_colour in RingColour:
-        if is_harvested(old_plants_objs[ring_colour.value], new_plants_objs[ring_colour.value]):
+        old_plant = old_plants_objs[ring_colour.value]
+        new_plant = new_plants_objs[ring_colour.value]
+        if is_harvested(old_plant, new_plant):
+            # After harvest, slot will be empty so None
+            new_plant = None
             harvest_count += 1
-    
-    return harvest_count
+        after_harvest_plants_status[ring_colour] = new_plant.dict() if new_plant != None else new_plant
+
+    return harvest_count, after_harvest_plants_status
 
 def is_water_level_healthy(water_level_value: int):
     return "Healthy" if water_level_value == 1 else "Unhealthy"

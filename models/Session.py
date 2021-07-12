@@ -40,7 +40,8 @@ class Session(BaseModel):
         SensorType.nutrient_level: Sensor(type=SensorType.nutrient_level),
         SensorType.water_level: Sensor(type=SensorType.water_level)
         }
-    plants: Dict[RingColour, Plant] = {
+    # None means empty slot
+    plants: Union[Dict[RingColour, None], Dict[RingColour, Plant]] = {
         RingColour.red: Plant(ringColour=RingColour.red),
         RingColour.peach: Plant(ringColour=RingColour.peach),
         RingColour.purple: Plant(ringColour=RingColour.purple),

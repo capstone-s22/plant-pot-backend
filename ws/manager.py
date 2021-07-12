@@ -1,4 +1,5 @@
 import sys
+import os 
 
 from validations.pot2be_schemas import MessageFromPot, Action, PotDataStr, PotDataBool, PotDataInt, PotDataDictStr, PotDataDictBool, PotDataDictInt 
 from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr, PotSendDataDictBool
@@ -7,7 +8,7 @@ from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
 from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_sounds, get_harvest_reward
 from lib.check_in import get_check_in_update
-from lib.plant_care import cv_inference, get_harvests_completed, harvest_ready
+from lib.plant_care import cv_inference, get_harvests_completed, harvest_ready, revise_plants_status
 
 async def crud_manager(message: MessageFromPot):
     pot_id = message.potId
@@ -58,6 +59,10 @@ async def crud_manager(message: MessageFromPot):
                     encoded_img_data = pot_data_dict["value"]
                     current_pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
                     new_plants_status = await cv_inference(pot_id, encoded_img_data)
+                    
+                    # NOTE: Function for time-based plant growth stages. Remove if only depending on CV
+                    # TODO: Future work: start time of seed planting based on user indication in app, not session start time
+                    new_plants_status = revise_plants_status(current_pot, new_plants_status)
 
                     # Dont need to check if user indication, users may harvest without using app
                     if harvest_ready(new_plants_status):
@@ -68,7 +73,7 @@ async def crud_manager(message: MessageFromPot):
                         # await ws_manager.send_personal_message_json(harvest_alert.dict(), pot_id)
                         responses.append(harvest_alert)
 
-                    harvest_count = get_harvests_completed(current_pot, new_plants_status)
+                    harvest_count, new_plants_status = get_harvests_completed(current_pot, new_plants_status)
                     harvest_reward = get_harvest_reward(harvest_count)
                     reward_sounds = get_reward_sounds(harvest_reward)
                     firestore_input = {
@@ -89,10 +94,12 @@ async def crud_manager(message: MessageFromPot):
         return responses
 
     except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         err_response = MessageToPot(potId=pot_id, 
                                 data=[PotSendDataDictStr(
                                     field=PotSendDataStr.error,
-                                    value="Error: {}".format(e))]
+                                    value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
                                 )
         responses.append(err_response)
         return responses
