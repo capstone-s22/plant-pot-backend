@@ -14,8 +14,8 @@ class ConnectionManager:
     def __init__(self):
         self.active_connections: Dict[str : WebSocket] = {} #TODO: change type to pot id
 
-    def check_existing_connections(self, prefix_msg="Existing Connections"):
-        logger.info("{} - {}".format(prefix_msg, self.active_connections.keys()))
+    def check_existing_connections(self):
+        logger.info("Existing Connections - {}".format(list(self.active_connections.keys())))
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -27,32 +27,28 @@ class ConnectionManager:
         self.check_existing_connections("Before disconnect")
         # self.active_connections.pop(pot_id, None)
         del self.active_connections[pot_id]
-        self.check_existing_connections("After disconnect")
+        logger.warning("Pot {} disconnected".format(pot_id))
+        self.check_existing_connections()
 
     async def send_personal_message_text(self, message: str, pot_id: str):
-        self.check_existing_connections("Before sending message")
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
-            # logger.info("Sent Pot {} for message: {}".format(pot_id, message))
             logger.info(message)
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(message)
 
     async def send_personal_message_json(self, message: dict, pot_id: str):
-        self.check_existing_connections("Before sending message (json)")
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_json(message)
-            # logger.info("Sent Pot {} for message: {}".format(pot_id, message))
             logger.info(message)
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(message)
 
     async def broadcast(self, message: str):
-        self.check_existing_connections("Broadcasting to")
         if len(self.active_connections) > 0:
             for pot_id in self.active_connections:
                 websocket: WebSocket = self.active_connections[pot_id]
