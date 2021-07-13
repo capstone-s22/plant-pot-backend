@@ -24,7 +24,6 @@ class ConnectionManager:
         logger.info("Connected WSs: {}".format(self.active_connections.keys()))
 
     def disconnect(self, pot_id):
-        self.check_existing_connections("Before disconnect")
         # self.active_connections.pop(pot_id, None)
         del self.active_connections[pot_id]
         logger.warning("Pot {} disconnected".format(pot_id))
