@@ -1,4 +1,4 @@
-from models.Reward import RewardIncrement, RewardSound
+from models.Reward import RewardIncrement
 from models.Plant import Plant
 from models.CheckIn import CheckIn
 
