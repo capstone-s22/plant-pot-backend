@@ -54,16 +54,16 @@ class ConnectionManager:
                 health_check_msg = be2pot_schemas.MessageToPot(
                     action=be2pot_schemas.Action.read,
                     potId=pot_id,
-                    data=be2pot_schemas.PotSendDataDictStr(
-                        field=be2pot_schemas.PotSendDataStr.health_check,
-                        value=message
-                    )
+                    data=[be2pot_schemas.PotSendDataDictStr(
+                            field=be2pot_schemas.PotSendDataStr.health_check,
+                            value=message
+                            )
+                        ]
                 )
                 await websocket.send_json(health_check_msg.dict())
                 logger.info(message)
         else:
-            message["warning_msg"] = "No websocket connections"
-            logger.warning(message)
+            logger.warning("No websocket connections to broadcast to")
 
     async def process_message(self, data):
         try:
