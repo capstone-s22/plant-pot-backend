@@ -48,19 +48,19 @@
 		```json
 		{
 			"action": "update",
-			"potId": "0001",
+			"potId": "1111111",
 			"data": [
 				{
-					"field": "sensors.temperature",
-					"value": 1.0
+					"field": "temperature",
+					"value": 25.0
 				},
 				{
-					"field": "sensors.nutrientLevel",
-					"value": 1.0
+					"field": "nutrientLevel",
+					"value": 1000
 				},
 				{
-					"field": "sensors.waterLevel",
-					"value": 1.0
+					"field": "waterLevel",
+					"value": 1
 				}
 			]
 		}

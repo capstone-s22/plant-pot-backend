@@ -21,7 +21,7 @@ async def crud_manager(message: MessageFromPot):
             for pot_data_dict in message.data:
                 # Create Pot
                 if pot_data_dict["field"] == PotDataStr.pot:
-                    parameter = "pot"
+                    parameter = pot_data_dict["field"]
                     pot_id_to_create = pot_data_dict["value"]
                     new_pot: Pot = new_pot_registration(pot_id_to_create)
                     # Add pot in firebase
@@ -32,7 +32,7 @@ async def crud_manager(message: MessageFromPot):
             for pot_data_dict in message.data:
                 # Update check-in
                 if pot_data_dict["field"] == PotDataBool.checkIn:
-                    parameter = "checkIn"
+                    parameter = pot_data_dict["field"]
 
                     # Get plants details
                     pot: Pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
@@ -51,7 +51,7 @@ async def crud_manager(message: MessageFromPot):
                 # Update sensor values
                 # TODO: Refactor: Parse into Sensor Type before converting for firestore input to upload
                 elif pot_data_dict["field"] in [sensor for sensor in PotDataFloat]:
-                    parameter = "Sensor values"
+                    parameter = pot_data_dict["field"]
                     sensor_type: SensorType = pot_data_dict["field"]
                     sensor_value = pot_data_dict["value"]
                     to_alert = is_sensor_remedy_needed(sensor_type, sensor_value)
@@ -73,7 +73,7 @@ async def crud_manager(message: MessageFromPot):
                             firestore_input.update(sensor_remedy_firestore_input)
 
                 elif pot_data_dict["field"] == PotDataStr.image :
-                    parameter = "image"
+                    parameter = pot_data_dict["field"]
                     encoded_img_data = pot_data_dict["value"]
                     current_pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
                     new_plants_status = await cv_inference(pot_id, encoded_img_data)

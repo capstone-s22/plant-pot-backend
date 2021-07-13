@@ -21,26 +21,17 @@ class Action(str, Enum):
     append = "append"
     delete = "delete"
 
-    class Config:  
-        use_enum_values = True
-
 class PotDataStr(str, Enum):
     pot = "pot"
     image = "image"
-    class Config:  
-        use_enum_values = True
 
 class PotDataBool(str, Enum):
     checkIn = "checkIn"
-    class Config:  
-        use_enum_values = True
 
 class PotDataFloat(str, Enum):
     sensorTemperature = "temperature"
     sensorNutrientLevel = "nutrientLevel"
     sensorWaterLevel = "waterLevel"
-    class Config:  
-        use_enum_values = True
 
 # TODO: Make better suit for different types of messages
 class PotDataDictStr(TypedDict):
@@ -59,12 +50,5 @@ class MessageFromPot(BaseModel):
     action: Action
     potId: get_type_hints(Pot)["potId"] # Or Pot.__annotations__["potId"]
     data: List[Union[PotDataDictStr, PotDataDictFloat, PotDataDictBool]]
-
-def parse2log(msg: MessageFromPot):
-    prefix = "action: {}, potId: {}".format(msg.action, msg.potId)
-    # for data_dict in msg.data:
-    #      field = data_dict.field
-    return 
-
-
-    
+    class Config:  
+        use_enum_values = True
