@@ -19,7 +19,7 @@ A serious error, indicating that the program itself may be unable to continue ru
 logging.basicConfig( 
     # format="[%(asctime)s]  %(levelname)-5s: %(filename)s:%(lineno)-5d: %(message)s",
     # format="%(levelname)-5s: %(filename)s:%(lineno)-5d: %(message)s",
-    format='{"level": "%(levelname)s", "filename": "%(filename)s", "line_no": %(lineno)s',
+    format='{"level": "%(levelname)s", "filename": "%(filename)s", "line_no": %(lineno)s}',
     datefmt="%Y-%m-%d %H:%M:%S", 
     level=logging.INFO,
     handlers=[
