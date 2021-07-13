@@ -52,7 +52,4 @@ def get_reward_sounds(reward_increments):
 
     return reward_sound.dict()
 
-
 # plants = {'red': Plant(ringColour='red', growthStage='sprouting', plantHealth=0.5, plantSize=2.0), 'peach': Plant(ringColour='peach', growthStage='sprouting', plantHealth=0.5, plantSize=2.0), 'blue': Plant(ringColour='blue', growthStage='sprouting', plantHealth=0.5, plantSize=2.0), 'purple': Plant(ringColour='purple', growthStage='sprouting', plantHealth=0.5, plantSize=2.0)}
-# print(get_check_in_reward(plants))
-# print(get_plant_care_reward())

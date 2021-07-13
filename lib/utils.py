@@ -1,14 +1,6 @@
 import time
 from datetime import datetime as dt
 
-def pretty(d, indent=0):
-   for key, value in d.items():
-      print('\t' * indent + str(key))
-      if isinstance(value, dict):
-         pretty(value, indent+1)
-      else:
-         print('\t' * (indent+1) + str(value))
-
 # TODO: change to simpler method: https://stackoverflow.com/questions/19825330/python-how-to-convert-ctime-to-m-d-y-hms
 def dt_float2str(timeDate: float):
     if type(timeDate) == float:

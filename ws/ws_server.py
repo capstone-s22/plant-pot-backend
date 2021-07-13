@@ -15,7 +15,7 @@ class ConnectionManager:
         self.active_connections: Dict[str : WebSocket] = {} #TODO: change type to pot id
 
     def check_existing_connections(self, prefix_msg="Existing Connections"):
-        logger.info("{} : {}".format(prefix_msg, self.active_connections.keys()))
+        logger.info("{} - {}".format(prefix_msg, self.active_connections.keys()))
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
@@ -39,6 +39,7 @@ class ConnectionManager:
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(json.dumps(message))
+
     async def send_personal_message_json(self, message: dict, pot_id: str):
         self.check_existing_connections("Before sending message (json)")
         if pot_id in self.active_connections:
@@ -54,8 +55,16 @@ class ConnectionManager:
         self.check_existing_connections("Broadcasting to")
         if len(self.active_connections) > 0:
             for pot_id in self.active_connections:
-                await self.active_connections[pot_id].send_text(message)
-                # logger.info("Broadcasted to Pot {} for message: {}".format(pot_id, message))
+                websocket: WebSocket = self.active_connections[pot_id]
+                health_check_msg = be2pot_schemas.MessageToPot(
+                    action=be2pot_schemas.Action.read,
+                    potId=pot_id,
+                    data=be2pot_schemas.PotSendDataDictStr(
+                        field=be2pot_schemas.PotSendDataStr.health_check,
+                        value=message
+                    )
+                )
+                await websocket.send_json(health_check_msg.dict())
                 logger.info(json.dumps(message))
         else:
             message["warning_msg"] = "No websocket connections"
@@ -71,7 +80,6 @@ class ConnectionManager:
 
 @router.websocket("/ws/{pot_id}")
 async def websocket_endpoint(websocket: WebSocket, pot_id: str):
-    # print(manager)
     await ws_manager.connect(websocket)
 
     try:
@@ -81,15 +89,12 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
             responses: List[be2pot_schemas.MessageToPot] = await ws_manager.process_message(data)
             for response in responses:
                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
-            # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
     except pydantic.error_wrappers.ValidationError as e:
-        print("Invalid data model")
-        print(e)           
+        logger.error(e)           
         await ws_manager.send_personal_message_text("Invalid data model", pot_id)
 
     except WebSocketDisconnect:
-        print("------------------")
         ws_manager.disconnect(pot_id)
 
 ws_manager = ConnectionManager()

@@ -10,7 +10,7 @@ from models.CheckIn import CheckIn
 from models.Sensor import Sensor, SensorType
 
 class Seed(str, Enum):
-    xiao_bai_cai = "chinese cabbage"
+    chinese_cabbage = "chinese cabbage"
 
 class PetType(str, Enum):
     penguin = "penguin"

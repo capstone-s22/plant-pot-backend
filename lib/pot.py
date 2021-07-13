@@ -1,6 +1,8 @@
+from datetime import timedelta
+
 from models.Pot import Pot
 from models.Session import Session, NewSessionInput
-from datetime import timedelta
+from lib.custom_logger import logger
 
 def scheduled_quiz_dates(start_date, quiz_day_intervals):
     # currently using datetime.utcnow() from Session class
@@ -22,5 +24,4 @@ def new_pot_registration(pot_id):
 
         return new_pot
     except Exception as e:
-        print(e)
-        return "ERROR"
+        return e

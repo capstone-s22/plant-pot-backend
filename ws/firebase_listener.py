@@ -20,15 +20,15 @@ async def listen_collection(collection):
     # Create a callback on_snapshot function to capture changes
     @async_to_sync
     async def on_snapshot(col_snapshot, changes, read_time):
-        print("=========")
         for change in changes:
             if change.type.name == 'ADDED':
-                print(f'New Pot: {change.document.id}')
+                # print(f'New Pot: {change.document.id}')
+                pass
             elif change.type.name == 'MODIFIED':
-                print(f'Modified Pot: {change.document.id}')
+                # print(f'Modified Pot: {change.document.id}')
                 doc_updated = change.document.__dict__['_data']
                 pot_id = change.document.id
-                print(pot_id)
+                # print(pot_id)
                 firestore_input = {}
 
                 pot_obj: Pot = Pot.parse_obj(doc_updated)

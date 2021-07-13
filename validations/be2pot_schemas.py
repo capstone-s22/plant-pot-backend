@@ -27,6 +27,7 @@ class PotSendDataBool(str, Enum):
     alertCoinsSound = "alertCoinsSound"
 
 class PotSendDataStr(str, Enum):
+    health_check = "health check"
     acknowledgment = "ack"
     error = "error"
     image = "image"
