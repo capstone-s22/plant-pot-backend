@@ -24,6 +24,7 @@ async def quiz_alert():
     # NOTE: For Python, all string fields with an integer value like '1' require ``
     retrieved_pots = pots_collection.where('session.quiz.quizDates', 'array_contains', current_date).get()
 
+    # TODO: parse this properly to Pot object
     for pot in retrieved_pots:
         pot_id = pot.to_dict()["potId"]
         quiz_day_number_idx = pot.to_dict()['session']['quiz']['quizDates'].index(current_date)

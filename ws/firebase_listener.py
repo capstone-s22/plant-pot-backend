@@ -28,6 +28,7 @@ async def listen_collection(collection):
                 print(f'Modified Pot: {change.document.id}')
                 doc_updated = change.document.__dict__['_data']
                 pot_id = change.document.id
+                print(pot_id)
                 firestore_input = {}
 
                 pot_obj: Pot = Pot.parse_obj(doc_updated)

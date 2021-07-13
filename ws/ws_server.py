@@ -3,6 +3,7 @@ from typing import Dict, List
 # from typing_extensions import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from lib.custom_logger import logger
 from validations import be2pot_schemas, pot2be_schemas
 from ws.manager import crud_manager
 
@@ -13,13 +14,13 @@ class ConnectionManager:
         self.active_connections: Dict[str : WebSocket] = {} #TODO: change type to pot id
 
     def check_existing_connections(self, prefix_msg="Existing Connections"):
-        print("{} : {}".format(prefix_msg, self.active_connections.keys()))
+        logger.info("{} : {}".format(prefix_msg, self.active_connections.keys()))
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections[websocket.path_params['pot_id']] = websocket
-        print("WS connected with Pot {}".format(websocket.path_params['pot_id']))
-        print("Connected WSs: {}".format(self.active_connections.keys()))
+        logger.info("WS connected with Pot {}".format(websocket.path_params['pot_id']))
+        logger.info("Connected WSs: {}".format(self.active_connections.keys()))
 
     def disconnect(self, pot_id):
         self.check_existing_connections("Before disconnect")
@@ -33,7 +34,7 @@ class ConnectionManager:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
         else:
-            print("Websocket for Pot {} not found".format(pot_id))
+            logger.error("Websocket for Pot {} not found".format(pot_id))
 
     async def send_personal_message_json(self, message: dict, pot_id: str):
         self.check_existing_connections("Before sending message (json)")
@@ -41,20 +42,21 @@ class ConnectionManager:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_json(message)
         else:
-            print("Websocket for Pot {} not found".format(pot_id))
+            logger.error("Websocket for Pot {} not found".format(pot_id))
 
     async def broadcast(self, message: str):
         self.check_existing_connections("Broadcasting to")
         if len(self.active_connections) > 0:
             for pot_id in self.active_connections:
                 await self.active_connections[pot_id].send_text(message)
-                print("Broadcast to Pot {} complete".format(pot_id))
+                logger.info("Broadcast to Pot {} complete".format(pot_id))
         else:
-            print("No websocket connections")
+            logger.warning("No websocket connections")
 
     async def process_message(self, data):
         try:
             msg_obj: pot2be_schemas.MessageFromPot = await pot2be_schemas.validate_model(data)
+            logger.info(data)
             responses: List[be2pot_schemas.MessageToPot] = await crud_manager(msg_obj)
             return responses
         except Exception as e:
