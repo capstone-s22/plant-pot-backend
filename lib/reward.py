@@ -45,11 +45,7 @@ def get_plant_care_reward():
 
 def get_reward_sounds(reward_increments):
     reward_increment_obj: RewardIncrement = RewardIncrement.parse_obj(reward_increments)
-    reward_sound = RewardSound(
-        alertLeavesSound=True if reward_increment_obj.coinsRewardIncrement > 0.0 else False,
-        alertCoinsSound=True if reward_increment_obj.leavesRewardIncrement > 0.0 else False
-    )
+    return reward_increment_obj.coinsRewardIncrement > 0.0 or reward_increment_obj.leavesRewardIncrement > 0.0
 
-    return reward_sound.dict()
 
 # plants = {'red': Plant(ringColour='red', growthStage='sprouting', plantHealth=0.5, plantSize=2.0), 'peach': Plant(ringColour='peach', growthStage='sprouting', plantHealth=0.5, plantSize=2.0), 'blue': Plant(ringColour='blue', growthStage='sprouting', plantHealth=0.5, plantSize=2.0), 'purple': Plant(ringColour='purple', growthStage='sprouting', plantHealth=0.5, plantSize=2.0)}

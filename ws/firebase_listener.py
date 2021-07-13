@@ -34,13 +34,13 @@ async def listen_collection(collection):
                 pot_obj: Pot = Pot.parse_obj(doc_updated)
                 
                 bool_triggers = {
-                    PotSendDataBool.alertLeavesSound: {
-                        "fs_path" : "session.reward.rewardSound.{}".format(PotSendDataBool.alertLeavesSound),
-                        "value": pot_obj.session.reward.rewardSound.alertLeavesSound
+                    PotSendDataBool.ringHappySound: {
+                        "fs_path" : "sounds.happySound",
+                        "value": pot_obj.sounds.sadSound
                         },
-                    PotSendDataBool.alertCoinsSound: {
-                        "fs_path" : "session.reward.rewardSound.{}".format(PotSendDataBool.alertCoinsSound),
-                        "value": pot_obj.session.reward.rewardSound.alertCoinsSound
+                    PotSendDataBool.ringSadSound: {
+                        "fs_path" : "sounds.sadSound",
+                        "value": pot_obj.sounds.sadSound
                         }
                     }
 
@@ -55,28 +55,6 @@ async def listen_collection(collection):
                         # TODO: Check if plant pot has to turn it off or will be auto turn off
                         # TODO: Better to have mobile app trigger this by sending to backend directly
                         firestore_input[bool_triggers[trigger_field]["fs_path"]] = False
-                
-                # NOTE: Should be able to delete this
-                # str_triggers = {
-                #     PotSendDataStr.harvest: {
-                #         "fs_path" : "session.plants",
-                #         "value": pot_obj.session.plants
-                #         }
-                #     }
-
-                # for trigger_field in str_triggers:
-                #     if trigger_field == PotSendDataStr.harvest:
-                #         current_plants_attr: Dict[RingColour: Plant] = str_triggers[trigger_field]["value"]
-                #         for ring_colour in current_plants_attr:
-                #             plant: Plant = Plant.parse_obj(current_plants_attr[ring_colour])
-                #             if plant.growthStage ==  GrowthStage.harvest:
-                #                 print("Pot {}'s plants are ready to harvest!".format(pot_id))
-                #                 response = MessageToPot(potId=pot_id, 
-                #                                         data=[PotSendDataDictBool(
-                #                                             field=trigger_field,
-                #                                             value="Pot {}'s plants are ready to harvest!".format(pot_id))])
-                #                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
-                #                 break
 
                 if firestore_input != {}:
                     pots_collection.document(pot_id).update(firestore_input)

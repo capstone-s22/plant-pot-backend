@@ -20,11 +20,11 @@ class Action(str, Enum):
 class PotSendDataBool(str, Enum):
     showCheckIn = "showCheckIn"
     showQuiz = "showQuiz"
-    alertTempSensor = "sensors.temperature.toAlert"
-    alertNLSensor = "sensors.nutrientLevel.toAlert"
-    alertWLSensor = "sensors.waterLevel.toAlert"
-    alertLeavesSound = "alertLeavesSound"
-    alertCoinsSound = "alertCoinsSound"
+    alertTempSensor = "temperature" # Currently unused
+    alertNLSensor = "nutrientLevel" # Currently unused
+    alertWLSensor = "waterLevel" # Currently unused
+    ringHappySound = "ringHappySound"
+    ringSadSound = "ringSadSound"
 
 class PotSendDataStr(str, Enum):
     health_check = "health check"

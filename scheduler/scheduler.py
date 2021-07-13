@@ -22,13 +22,12 @@ async def pots_health_check():
             await ws_manager.send_personal_message_json(health_check_msg.dict(), pot_id)
             logger.info("Health check to pot {} success!".format(pot_id))
             firestore_input = {"connected": True}
-            # Update Firebase to alert mobile app
 
         except Exception as e:
             logger.error("Health check to pot {} failed!".format(pot_id))
             firestore_input = {"connected": False}
-            # Update Firebase to alert mobile app
-        
+            
+        # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
 
 async def daily_check_in_alert():

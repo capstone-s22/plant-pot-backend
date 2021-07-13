@@ -39,11 +39,11 @@ async def crud_manager(message: MessageFromPot):
                     if pot.session.checkIn.showCheckIn:
                         check_in_update = get_check_in_update(pot.session.checkIn)
                         check_in_reward = get_check_in_reward(pot.session.plants, check_in_update)
-                        reward_sounds = get_reward_sounds(check_in_reward)
+                        ring_happy_sound = get_reward_sounds(check_in_reward)
                         firestore_input = {
                             "session.checkIn": check_in_update,
                             "session.reward.checkInReward": check_in_reward,
-                            "session.reward.rewardSound": reward_sounds
+                            "sounds.happySound": ring_happy_sound
                             }
                     else:
                         raise Exception("Check in not needed")
@@ -58,6 +58,7 @@ async def crud_manager(message: MessageFromPot):
                     firestore_input = {
                         "session.sensors.{}.value".format(sensor_type) : sensor_value,
                         "session.sensors.{}.toAlert".format(sensor_type) : to_alert,
+                        "sounds.sadSound" : to_alert,
                         }
 
                     # NOTE: Only need to retrieve latest sensor values if receive healthy values
@@ -65,10 +66,10 @@ async def crud_manager(message: MessageFromPot):
                         current_pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
                         if is_remedy_performed(sensor_type, current_pot):
                             sensor_remedy_reward = get_plant_care_reward()
-                            reward_sounds = get_reward_sounds(sensor_remedy_reward)
+                            ring_happy_sound = get_reward_sounds(sensor_remedy_reward)
                             sensor_remedy_firestore_input = {
                                 "session.reward.plantCareReward": sensor_remedy_reward,
-                                "session.reward.rewardSound": reward_sounds
+                                "sounds.happySound": ring_happy_sound
                                 }
                             firestore_input.update(sensor_remedy_firestore_input)
 
@@ -94,11 +95,11 @@ async def crud_manager(message: MessageFromPot):
 
                     harvest_count, new_plants_status = get_harvests_completed(current_pot, new_plants_status)
                     harvest_reward = get_harvest_reward(harvest_count)
-                    reward_sounds = get_reward_sounds(harvest_reward)
+                    ring_happy_sound = get_reward_sounds(harvest_reward)
                     firestore_input = {
                         "session.plants" : new_plants_status,
                         "session.reward.harvestReward": harvest_reward,
-                        "session.reward.rewardSound": reward_sounds
+                        "sounds.happySound": ring_happy_sound
                         }
                 pots_collection.document(pot_id).update(firestore_input)
 

@@ -134,28 +134,28 @@
 			]
 		}
 
-* Rewards sound (daily check-in / quiz)
-	* Leaves sound effect
+* Sounds
+	* Ring Happy sound (for rewards)
 		```json
 		{
 			"action":"update",
 			"potId":"1111111",
 			"data":[
 				{
-					"field":"alertLeavesSound",
+					"field":"ringHappySound",
 					"value":true
 				}
 			]
 		}
 
-	* Leaves coins effect
+	* Ring Sad sound
 		```json
 		{
 			"action":"update",
 			"potId":"1111111",
 			"data":[
 				{
-					"field":"alertCoinsSound",
+					"field":"ringSadSound",
 					"value":true
 				}
 			]

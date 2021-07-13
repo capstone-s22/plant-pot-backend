@@ -1,9 +1,5 @@
 from pydantic import BaseModel
 
-class RewardSound(BaseModel):
-    alertCoinsSound: bool = False
-    alertLeavesSound: bool = False
-
 class RewardIncrement(BaseModel):
     coinsRewardIncrement: int = 0
     leavesRewardIncrement: int = 0
@@ -12,7 +8,6 @@ class RewardIncrement(BaseModel):
 class Reward(BaseModel):
     coins: int = 80
     leaves: int = 40
-    rewardSound: RewardSound = RewardSound()
     checkInReward: RewardIncrement = RewardIncrement()
     plantCareReward: RewardIncrement = RewardIncrement()
     harvestReward: RewardIncrement = RewardIncrement()
