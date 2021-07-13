@@ -1,0 +1,1 @@
+{'level': 'INFO', 'filename': 'ws_server.py', 'line_no': '47' , 'message': '{'action': 'update', 'potId': '1111111', 'data': [{'field': 'ack', 'value': 'update Sensor values'}]}'}
