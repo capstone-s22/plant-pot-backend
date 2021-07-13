@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+import sys
 
 """
 DEBUG
@@ -20,7 +21,7 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S", 
     level=logging.INFO,
     handlers=[
-        logging.StreamHandler()
+        logging.StreamHandler(sys.stdout)
     ]
 )
 
