@@ -28,7 +28,8 @@ async def quiz_alert():
         pot_id = pot.to_dict()["potId"]
         quiz_day_number_idx = pot.to_dict()['session']['quiz']['quizDates'].index(current_date)
         quiz_day_number = pot.to_dict()['session']['quiz']['quizDayNumbers'][quiz_day_number_idx]
-        firestore_input = {"session.quiz.showQuiz": True,
+        current_show_quiz_numbers: list = pot.to_dict()['session']['quiz']['showQuizNumbers']
+        firestore_input = {"session.quiz.showQuizNumbers": current_show_quiz_numbers.append(quiz_day_number),
                             "session.quiz.currentQuizDayNumber" : quiz_day_number}
         # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
