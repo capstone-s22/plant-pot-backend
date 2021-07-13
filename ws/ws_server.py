@@ -35,10 +35,10 @@ class ConnectionManager:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
             # logger.info("Sent Pot {} for message: {}".format(pot_id, message))
-            logger.info(json.dumps(message))
+            logger.info(message)
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
-            logger.error(json.dumps(message))
+            logger.error(message)
 
     async def send_personal_message_json(self, message: dict, pot_id: str):
         self.check_existing_connections("Before sending message (json)")
@@ -46,10 +46,10 @@ class ConnectionManager:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_json(message)
             # logger.info("Sent Pot {} for message: {}".format(pot_id, message))
-            logger.info(json.dumps(message))
+            logger.info(message)
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
-            logger.error(json.dumps(message))
+            logger.error(message)
 
     async def broadcast(self, message: str):
         self.check_existing_connections("Broadcasting to")
@@ -65,10 +65,10 @@ class ConnectionManager:
                     )
                 )
                 await websocket.send_json(health_check_msg.dict())
-                logger.info(json.dumps(message))
+                logger.info(message)
         else:
             message["warning_msg"] = "No websocket connections"
-            logger.warning(json.dumps(message))
+            logger.warning(message)
 
     async def process_message(self, data):
         try:
@@ -85,10 +85,11 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            logger.info(json.dumps(data))
+            logger.info(data)
             responses: List[be2pot_schemas.MessageToPot] = await ws_manager.process_message(data)
             for response in responses:
                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
+            # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
     except pydantic.error_wrappers.ValidationError as e:
         logger.error(e)           
