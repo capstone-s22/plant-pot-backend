@@ -36,7 +36,7 @@ async def listen_collection(collection):
                 bool_triggers = {
                     PotSendDataBool.ringHappySound: {
                         "fs_path" : "sounds.happySound",
-                        "value": pot_obj.sounds.sadSound
+                        "value": pot_obj.sounds.happySound
                         },
                     PotSendDataBool.ringSadSound: {
                         "fs_path" : "sounds.sadSound",
