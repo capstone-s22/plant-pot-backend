@@ -17,7 +17,9 @@ A serious error, indicating that the program itself may be unable to continue ru
 """
 
 logging.basicConfig( 
-    format="[%(asctime)s] %(filename)s:%(lineno)-5d %(levelname)-8s: %(message)s",
+    # format="[%(asctime)s]  %(levelname)-5s: %(filename)s:%(lineno)-5d: %(message)s",
+    # format="%(levelname)-5s: %(filename)s:%(lineno)-5d: %(message)s",
+    format="{'filename': '%(filename)s', 'line_no': '%(lineno)s', 'level': '%(levelname)s', 'message': '%(message)s'}",
     datefmt="%Y-%m-%d %H:%M:%S", 
     level=logging.INFO,
     handlers=[

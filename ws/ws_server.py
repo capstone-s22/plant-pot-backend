@@ -33,6 +33,7 @@ class ConnectionManager:
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
+            logger.info("Sent Pot {} for message: {}".format(pot_id, message))
         else:
             logger.error("Websocket for Pot {} not found".format(pot_id))
 
@@ -41,15 +42,16 @@ class ConnectionManager:
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_json(message)
+            logger.info("Sent Pot {} for message: {}".format(pot_id, message))
         else:
-            logger.error("Websocket for Pot {} not found".format(pot_id))
+            logger.error("Websocket for Pot {} not found for message: {}".format(pot_id, message))
 
     async def broadcast(self, message: str):
         self.check_existing_connections("Broadcasting to")
         if len(self.active_connections) > 0:
             for pot_id in self.active_connections:
                 await self.active_connections[pot_id].send_text(message)
-                logger.info("Broadcast to Pot {} complete".format(pot_id))
+                logger.info("Broadcasted to Pot {} for message: {}".format(pot_id, message))
         else:
             logger.warning("No websocket connections")
 
