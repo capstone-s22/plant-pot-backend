@@ -33,25 +33,29 @@ class ConnectionManager:
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
-            logger.info("Sent Pot {} for message: {}".format(pot_id, message))
+            # logger.info("Sent Pot {} for message: {}".format(pot_id, message))
+            logger.info(message)
         else:
-            logger.error("Websocket for Pot {} not found".format(pot_id))
-
+            message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
+            logger.error(message)
     async def send_personal_message_json(self, message: dict, pot_id: str):
         self.check_existing_connections("Before sending message (json)")
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_json(message)
-            logger.info("Sent Pot {} for message: {}".format(pot_id, message))
+            # logger.info("Sent Pot {} for message: {}".format(pot_id, message))
+            logger.info(message)
         else:
-            logger.error("Websocket for Pot {} not found for message: {}".format(pot_id, message))
+            message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
+            logger.error(message)
 
     async def broadcast(self, message: str):
         self.check_existing_connections("Broadcasting to")
         if len(self.active_connections) > 0:
             for pot_id in self.active_connections:
                 await self.active_connections[pot_id].send_text(message)
-                logger.info("Broadcasted to Pot {} for message: {}".format(pot_id, message))
+                # logger.info("Broadcasted to Pot {} for message: {}".format(pot_id, message))
+                logger.info(message)
         else:
             logger.warning("No websocket connections")
 
@@ -72,6 +76,7 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     try:
         while True:
             data = await websocket.receive_json()
+            logger.info(data)
             responses: List[be2pot_schemas.MessageToPot] = await ws_manager.process_message(data)
             for response in responses:
                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
