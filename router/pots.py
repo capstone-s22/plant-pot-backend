@@ -7,19 +7,28 @@ from lib.firebase import pots_collection
 sys.path.append("..")
 from ws.ws_server import ws_manager
 from lib.custom_logger import logger
+from validations.be2pot_schemas import PotSendDataDictStr, PotSendDataStr, MessageToPot
 
 router = APIRouter()
 
-@router.get('/health')
-async def health():
+@router.put('/health')
+async def health(pot: PotHttpReq):
     try:
-        ws_manager.check_existing_connections()
-        await ws_manager.broadcast("Health Check")
-        logger.info("Health check to pots completed")
+        pot_id = pot.id
+        health_check_msg = MessageToPot(
+                                potId=pot_id, 
+                                data=[PotSendDataDictStr(
+                                    field=PotSendDataStr.health_check,
+                                    value="health check"
+                                )])
+        await ws_manager.send_personal_message_json(health_check_msg.dict(), pot_id)
+        logger.info("Health check to pot {} success!".format(pot_id))
+        firestore_input = {"connected": True}
+        pots_collection.document(pot_id).update(firestore_input)
         return {"health check": True}
     except Exception as e:
-        logger.error(e)
-        return f"An Error Occured: {e}"
+        logger.error("Health check to pot {} failed!".format(pot_id))
+        return {"health check": False}
 
 @router.post('/add')
 async def create(new_pot: PotHttpReq):

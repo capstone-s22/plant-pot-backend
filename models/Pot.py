@@ -13,6 +13,7 @@ class Pot(BaseModel):
     # user_id: str
     potRegisteredTime: datetime = datetime.utcnow()
     session: Session
+    connected: bool = True
 
 class PotHttpReq(BaseModel):
     id: get_type_hints(Pot)["potId"] # Or Pot.__annotations__["potId"]

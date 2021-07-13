@@ -21,7 +21,7 @@ class ConnectionManager:
         await websocket.accept()
         self.active_connections[websocket.path_params['pot_id']] = websocket
         logger.info("WS connected with Pot {}".format(websocket.path_params['pot_id']))
-        logger.info("Connected WSs: {}".format(self.active_connections.keys()))
+        logger.info("Connected WSs - {}".format(self.active_connections.keys()))
 
     def disconnect(self, pot_id):
         # self.active_connections.pop(pot_id, None)
@@ -37,6 +37,7 @@ class ConnectionManager:
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(message)
+            raise Exception("Websocket for Pot {} not found".format(pot_id)) 
 
     async def send_personal_message_json(self, message: dict, pot_id: str):
         if pot_id in self.active_connections:
@@ -46,6 +47,7 @@ class ConnectionManager:
         else:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(message)
+            raise Exception("Websocket for Pot {} not found".format(pot_id)) 
 
     async def broadcast(self, message_dict: be2pot_schemas.PotSendDataDictStr):
         if len(self.active_connections) > 0:
@@ -88,6 +90,7 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     
     except pydantic.error_wrappers.ValidationError as e:
         logger.error(e)           
+        #TODO: Send this as json as well
         await ws_manager.send_personal_message_text("Invalid data model", pot_id)
 
     except WebSocketDisconnect:

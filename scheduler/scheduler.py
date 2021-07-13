@@ -4,7 +4,32 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from ws.ws_server import ws_manager
 from lib.firebase import pots_collection
 from lib.custom_logger import logger
-from validations.be2pot_schemas import MessageToPot, Action, PotSendDataDictBool, PotSendDataBool
+from validations.be2pot_schemas import MessageToPot, Action, PotSendDataDictBool, PotSendDataBool, PotSendDataDictStr, PotSendDataStr
+
+async def pots_health_check():
+    all_pots = pots_collection.get()
+
+    for pot in all_pots:
+        try:
+            pot_id = pot.to_dict()['potId']
+            # Alert Pot
+            health_check_msg = MessageToPot(action=Action.update,
+                                    potId=pot_id, 
+                                    data=[PotSendDataDictStr(
+                                        field=PotSendDataStr.health_check,
+                                        value="health check"
+                                    )])
+            await ws_manager.send_personal_message_json(health_check_msg.dict(), pot_id)
+            logger.info("Health check to pot {} success!".format(pot_id))
+            firestore_input = {"connected": True}
+            # Update Firebase to alert mobile app
+
+        except Exception as e:
+            logger.error("Health check to pot {} failed!".format(pot_id))
+            firestore_input = {"connected": False}
+            # Update Firebase to alert mobile app
+        
+        pots_collection.document(pot_id).update(firestore_input)
 
 async def daily_check_in_alert():
     all_pots = pots_collection.get()
@@ -55,6 +80,7 @@ async def quiz_alert():
 
 scheduler = AsyncIOScheduler({'apscheduler.timezone': 'UTC'})
 
+scheduler.add_job(pots_health_check, 'interval', hours=1)
 # UTC Time is 8 hours ahead of SGT, so UTC 1600 == SGT 0000
 scheduler.add_job(daily_check_in_alert, 'cron', hour=16)
 scheduler.add_job(quiz_alert, 'cron', hour=16)
