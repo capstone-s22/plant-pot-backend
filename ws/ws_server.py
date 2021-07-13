@@ -47,7 +47,7 @@ class ConnectionManager:
             message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(message)
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, message_dict: be2pot_schemas.PotSendDataDictStr):
         if len(self.active_connections) > 0:
             for pot_id in self.active_connections:
                 websocket: WebSocket = self.active_connections[pot_id]
@@ -55,13 +55,13 @@ class ConnectionManager:
                     action=be2pot_schemas.Action.read,
                     potId=pot_id,
                     data=[be2pot_schemas.PotSendDataDictStr(
-                            field=be2pot_schemas.PotSendDataStr.health_check,
-                            value=message
+                            field=message_dict.field,
+                            value=message_dict.value
                             )
                         ]
                 )
                 await websocket.send_json(health_check_msg.dict())
-                logger.info(message)
+                logger.info(message_dict)
         else:
             logger.warning("No websocket connections to broadcast to")
 
@@ -81,7 +81,7 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
         while True:
             data = await websocket.receive_json()
             logger.info(data)
-            responses: List[be2pot_schemas.MessageToPot] = await ws_manager.process_message(data)
+            responses = await ws_manager.process_message(data)
             for response in responses:
                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
             # await manager.broadcast(f"Client #{pot_id} says: {data}")

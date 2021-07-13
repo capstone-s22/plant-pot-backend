@@ -179,30 +179,68 @@
 
 ## From Backend to Pot
 
-* Alert Quiz
-	* Leaves sound effect
+* Acknowledgement (for every messages sent to Pot)
+	```json
+	{
+		"action": "update",
+		"potId": "1111111",
+		"data":[
+			{
+				"field":"ack",
+				"value":"<action from prev message to backend> <parameter>"
+			}
+		]
+	}
+
+* Error message 
+	```json
+	{
+		"action": "update",
+		"potId": "1111111",
+		"data":[
+			{
+				"field":"error",
+				"value":"<error message>"
+			}
+		]
+	}
+
+* Health Check to Pot 
+	```json
+	{
+		"action": "read",
+		"potId": "1111111",
+		"data":[
+			{
+				"field":"health check",
+				"value":"health check"
+			}
+		]
+	}
+
+* Harvest 
+	* Send image over (to perform CV and check if harvested)
 		```json
 		{
-			"action": "update",
-			"data": [
+			"action": "read",
+			"potId": "1111111",
+			"data":[
 				{
-					"field": "showQuiz",
-					"potId": "0001",
-					"value": true
+					"field":"image",
+					"value":"send image over"
 				}
 			]
 		}
 
-* Alert checkIn
-	* Leaves sound effect
+	* To indicate ready for harvest
 		```json
 		{
 			"action": "update",
-			"data": [
+			"potId": "1111111",
+			"data":[
 				{
-					"field": "showCheckIn",
-					"potId": "0001",
-					"value": true
+					"field":"harvest",
+					"value":"Pot 1111111's plants are ready to harvest!"
 				}
 			]
 		}
@@ -211,12 +249,12 @@
 	* Leaves sound effect
 		```json
 		{
-			"action": "update",
-			"data": [
+			"action":"update",
+			"potId":"1111111",
+			"data":[
 				{
-					"field": "alertLeavesSound",
-					"potId": "0001",
-					"value": true
+					"field":"alertLeavesSound",
+					"value":true
 				}
 			]
 		}
@@ -224,38 +262,43 @@
 	* Leaves coins effect
 		```json
 		{
-			"action": "update",
-			"data": [
+			"action":"update",
+			"potId":"1111111",
+			"data":[
 				{
-					"field": "alertCoinsSound",
-					"potId": "0001",
-					"value": true
+					"field":"alertCoinsSound",
+					"value":true
 				}
 			]
 		}
 
-* Plant Care
-	* Update toAlert
+* Alert checkIn
+	* Leaves sound effect
 		```json
 		{
-			"action": "update",
-			"data": [
+			"action":"update",
+			"potId":"1111111",
+			"data":[
 				{
-					"field": "sensors.temperature.toAlert",
-					"potId": "0001",
-					"value": false,
-				},
-				{
-					"field": "sensors.nutrientLevel.toAlert",
-					"potId": "0001",
-					"value": false,
-				},
-				{
-					"field": "sensors.waterLevel.toAlert",
-					"potId": "0001",
-					"value": false,
-				},
+					"field":"showCheckIn",
+					"value":true
+				}
 			]
 		}
+
+* Alert Quiz
+	* Leaves sound effect
+		```json
+		{
+			"action":"update",
+			"potId":"1111111",
+			"data":[
+				{
+					"field":"showQuiz",
+					"value":true
+				}
+			]
+		}
+
 
 

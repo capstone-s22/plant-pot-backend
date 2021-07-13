@@ -4,9 +4,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from ws.ws_server import ws_manager
 from lib.firebase import pots_collection
 from lib.custom_logger import logger
-
-async def broadcast():
-    await ws_manager.broadcast("Hi from server")
+from validations.be2pot_schemas import MessageToPot, Action, PotSendDataDictBool, PotSendDataBool
 
 async def daily_check_in_alert():
     all_pots = pots_collection.get()
@@ -17,7 +15,12 @@ async def daily_check_in_alert():
         # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
         # Alert Pot
-        await ws_manager.send_personal_message_text("Check In Alert", pot_id)
+        alert_message = MessageToPot(action=Action.update,
+                                potId=pot_id, 
+                                data=[PotSendDataDictBool(
+                                    field=PotSendDataBool.showCheckIn,
+                                    value=True)])
+        await ws_manager.send_personal_message_json(alert_message.dict(), pot_id)
         logger.info("Sent Check In alert to Pot {}".format(pot_id))
         # TODO: Need a message queue for messages not sent to pots with failed websocket connection
 
@@ -34,11 +37,20 @@ async def quiz_alert():
         current_show_quiz_numbers: list = pot.to_dict()['session']['quiz']['showQuizNumbers']
         firestore_input = {"session.quiz.showQuizNumbers": current_show_quiz_numbers.append(quiz_day_number),
                             "session.quiz.currentQuizDayNumber" : quiz_day_number}
+
         # Update Firebase to alert mobile app
         pots_collection.document(pot_id).update(firestore_input)
         logger.info("Updated Quiz {} alert for Pot {} to database".format(quiz_day_number, pot_id))
+        
+        #TODO: Also alert when previous quiz not yet completed 
         # Alert Pot
-        await ws_manager.send_personal_message_text("Day {} Quiz Alert".format(quiz_day_number), pot_id)
+        alert_message = MessageToPot(action=Action.update,
+                                potId=pot_id, 
+                                data=[PotSendDataDictBool(
+                                    field=PotSendDataBool.showQuiz,
+                                    value=True)])
+        await ws_manager.send_personal_message_json(alert_message.dict(), pot_id)
+
         logger.info("Sent Quiz {} alert to Pot {}".format(quiz_day_number, pot_id))
 
 scheduler = AsyncIOScheduler({'apscheduler.timezone': 'UTC'})
