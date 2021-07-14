@@ -16,10 +16,19 @@ class RingColour(str, Enum):
     peach = "peach"
     purple = "purple"
 
+class Yellowness(BaseModel):
+    value: float = 0.0
+    toShowTrim: bool = False
+    
+    class Config:  
+        use_enum_values = True
+
 class Plant(BaseModel):
     ringColour: RingColour
     growthStage: GrowthStage = GrowthStage.seed
     plantHealth: float = 0.0
     plantSize: float = 0.0
+    yellowness: Yellowness = Yellowness()
+
     class Config:  
         use_enum_values = True

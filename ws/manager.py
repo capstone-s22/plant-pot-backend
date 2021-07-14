@@ -9,7 +9,7 @@ from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
 from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_sounds, get_harvest_reward
 from lib.check_in import get_check_in_update
-from lib.plant_care import cv_inference, get_harvests_completed, harvest_ready, revise_plants_status, is_sensor_remedy_needed, is_remedy_performed
+from lib.plant_care import cv_inference, get_harvests_completed, harvest_ready, revise_plants_status, is_sensor_remedy_needed, is_remedy_performed, to_show_trim
 
 async def crud_manager(message: MessageFromPot):
     pot_id = message.potId
@@ -83,6 +83,7 @@ async def crud_manager(message: MessageFromPot):
                     # TODO: Future work: start time of seed planting based on user indication in app, not session start time
                     # TODO: soundalert here, not through firebase listener
                     new_plants_status = revise_plants_status(current_pot, new_plants_status)
+                    new_plants_status = to_show_trim(new_plants_status)
 
                     # Dont need to check if user indication, users may harvest without using app
                     if harvest_ready(new_plants_status):

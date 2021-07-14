@@ -2,7 +2,7 @@ from models.Sensor import SensorType
 import aiohttp
 from attr import field
 import os
-from typing import Dict 
+from typing import Dict, Union
 from datetime import datetime
 
 from models.Plant import Plant, RingColour, GrowthStage
@@ -41,21 +41,38 @@ def revise_plants_status(current_pot: Pot, new_plants_status):
     revised_plants_status = {}
     for ring_colour in new_plants_status:
         plant = Plant.parse_obj(new_plants_status[ring_colour])
-        # TODO: Future work: start time of seed planting based on user indication in app, not session start time
-        # NOTE: Add replace(tzinfo=None) to avoid error "can't subtract offset-naive and offset-aware datetimes"
-        if is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            plant.growthStage = GrowthStage.seed
-        elif is_sprouting(plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            plant.growthStage = GrowthStage.sprouting
+
         # NOTE: After harvest, slot will be empty so None. For UT, no new seeds after harvest, so keep it at None
         # TODO: Ideally to remove this once UI allows users to indicate to plant new seed
-        elif current_pot.session.plants[ring_colour] == None:
+        if current_pot.session.plants[ring_colour] == None:
             plant = None
+
+        # TODO: Future work: start time of seed planting based on user indication in app, not session start time
+        # NOTE: Add replace(tzinfo=None) to avoid error "can't subtract offset-naive and offset-aware datetimes"
+        elif is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+            plant.growthStage = GrowthStage.seed
+
+        elif is_sprouting(plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+            plant.growthStage = GrowthStage.sprouting
+        
         else:
             pass
 
         revised_plants_status[ring_colour] = plant.dict() if plant != None else plant
     return revised_plants_status
+
+def to_show_trim(new_plants_status):
+    after_check_trim_status = {}
+    for ring_colour in new_plants_status:
+        if new_plants_status[ring_colour] == None:
+            plant = None
+        else:
+            plant = Plant.parse_obj(new_plants_status[ring_colour])
+            if plant.yellowness.value > 0.3:
+                plant.yellowness.toShowTrim = True
+        after_check_trim_status[ring_colour] = plant.dict() if plant != None else plant
+            
+    return after_check_trim_status
 
 def harvest_ready(new_plants_status):
     for ring_colour in new_plants_status:
@@ -74,15 +91,18 @@ def is_harvested(old_plant_obj: Plant, new_plant_obj: Plant):
 def get_harvests_completed(current_pot: Pot, new_plants_status):
     harvest_count = 0
     after_harvest_plants_status = {}
-    new_plants_objs: Dict[RingColour, Plant] = {}
-    old_plants_objs: Dict[RingColour, Plant] = current_pot.session.plants
+    new_plants_objs: Union[Dict[RingColour, None], Dict[RingColour, Plant]] = {}
+    old_plants_objs: Union[Dict[RingColour, None], Dict[RingColour, Plant]] = current_pot.session.plants
     for ring_colour in new_plants_status:
-        new_plants_objs[ring_colour] = Plant.parse_obj(new_plants_status[ring_colour])
+        if new_plants_status[ring_colour] == None:
+            new_plants_objs[ring_colour] = None
+        else:
+            new_plants_objs[ring_colour] = Plant.parse_obj(new_plants_status[ring_colour])
 
     for ring_colour in RingColour:
         old_plant = old_plants_objs[ring_colour.value]
         new_plant = new_plants_objs[ring_colour.value]
-        if is_harvested(old_plant, new_plant):
+        if old_plant != None and new_plant != None and is_harvested(old_plant, new_plant):
             # After harvest, slot will be empty so None
             new_plant = None
             harvest_count += 1
