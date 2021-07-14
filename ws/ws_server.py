@@ -1,4 +1,5 @@
-import json
+import os
+import sys
 import pydantic
 from typing import Dict, List
 # from typing_extensions import TypedDict
@@ -88,15 +89,32 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
             # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
+    # TODO: Maybe can remove this 
     except pydantic.error_wrappers.ValidationError as e:
         logger.error(e)           
-        #TODO: Send this as json as well
-        await ws_manager.send_personal_message_text("Invalid data model", pot_id)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
+                                data=[be2pot_schemas.PotSendDataDictStr(
+                                    field=be2pot_schemas.PotSendDataStr.error,
+                                    value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
+                                )
+
+        await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
 
     except WebSocketDisconnect:
         ws_manager.disconnect(pot_id)
     
     except Exception as e:
-        logger.error(e)
+        logger.error(e)           
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
+                                data=[be2pot_schemas.PotSendDataDictStr(
+                                    field=be2pot_schemas.PotSendDataStr.error,
+                                    value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
+                                )
+
+        await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
 
 ws_manager = ConnectionManager()
