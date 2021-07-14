@@ -8,7 +8,7 @@ class SensorType(str, Enum):
     water_level = "waterLevel"
 
 class SensorIndicatorRange(str, Enum):
-    null = "null"
+    null = None
     low = "low"
     medium = "medium"
     high = "high"
@@ -16,7 +16,7 @@ class SensorIndicatorRange(str, Enum):
 class Sensor(BaseModel):
     type: SensorType
     value: Union[None, float] = None
-    indicator: Union[None, SensorIndicatorRange] = None
+    indicator: Union[None, SensorIndicatorRange] = SensorIndicatorRange.medium
     toAlert: bool = False
     class Config:  
         use_enum_values = True
