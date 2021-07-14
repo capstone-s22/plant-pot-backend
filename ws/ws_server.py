@@ -95,5 +95,8 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
 
     except WebSocketDisconnect:
         ws_manager.disconnect(pot_id)
+    
+    except Exception as e:
+        logger.error(e)
 
 ws_manager = ConnectionManager()
