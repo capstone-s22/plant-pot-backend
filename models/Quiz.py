@@ -8,7 +8,7 @@ class QuizDifficulty(str, Enum):
     hard = "hard"
 
 class Quiz(BaseModel):
-    showQuizNumbers: List[bool] = []
+    showQuizNumbers: List[int] = []
     quizDifficulty: QuizDifficulty = QuizDifficulty.easy
     currentQuizDayNumber: int = 1 # User will get quiz right after the tutorial, activated by app
     quizDayNumbers: List[int] = [3,6,10,13,15,18,22,28,30]
