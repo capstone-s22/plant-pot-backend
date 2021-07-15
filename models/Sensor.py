@@ -23,5 +23,5 @@ class Sensor(BaseModel):
 
 class Sensors(BaseModel):
     temperature: Sensor = Sensor(type=SensorType.temperature)
-    nutrient_level: Sensor = Sensor(type=SensorType.nutrient_level)
-    water_level: Sensor = Sensor(type=SensorType.water_level)
+    nutriendLevel: Sensor = Sensor(type=SensorType.nutrient_level)
+    waterLevel: Sensor = Sensor(type=SensorType.water_level)
