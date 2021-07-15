@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from typing import Union, Dict 
-from models.Sensor import Sensor, SensorType
+from typing import Optional
 from enum import Enum
 
 class GrowthStage(str, Enum):
@@ -32,3 +31,10 @@ class Plant(BaseModel):
 
     class Config:  
         use_enum_values = True
+
+class Plants(BaseModel):
+    # Optional means Union[Plant, None], None means empty slot
+    blue: Optional[Plant] = Plant(ringColour=RingColour.blue)
+    red: Optional[Plant] = Plant(ringColour=RingColour.red)
+    peach: Optional[Plant] = Plant(ringColour=RingColour.peach)
+    purple: Optional[Plant] = Plant(ringColour=RingColour.purple)

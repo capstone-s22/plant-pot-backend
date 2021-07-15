@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
-from typing import Union, Dict
+from typing import Union
 
 class SensorType(str, Enum):
     temperature = "temperature"
@@ -20,3 +20,8 @@ class Sensor(BaseModel):
     toAlert: bool = False
     class Config:  
         use_enum_values = True
+
+class Sensors(BaseModel):
+    temperature: Sensor = Sensor(type=SensorType.temperature)
+    nutrient_level: Sensor = Sensor(type=SensorType.nutrient_level)
+    water_level: Sensor = Sensor(type=SensorType.water_level)
