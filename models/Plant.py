@@ -24,7 +24,7 @@ class Yellowness(BaseModel):
 
 class Plant(BaseModel):
     ringColour: RingColour
-    growthStage: GrowthStage = GrowthStage.seed
+    growthStage: Optional[GrowthStage] = GrowthStage.seed
     plantHealth: float = 0.0
     plantSize: float = 0.0
     yellowness: Yellowness = Yellowness()

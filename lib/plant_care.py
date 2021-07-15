@@ -2,12 +2,12 @@ from models.Sensor import SensorType
 import aiohttp
 from attr import field
 import os
-from typing import Dict, Union
 from datetime import datetime
 
-from models.Plant import Plant, RingColour, GrowthStage
+from models.Plant import Plant, GrowthStage, Plants
 from models.Pot import Pot
 from models.Sensor import Sensor
+from lib.custom_logger import logger
 
 CV_SERVER_URL_PREFIX = os.getenv('CV_SERVER_URL_PREFIX')
 # CV_SERVER_URL_PREFIX = "http://localhost:3002/cv"
@@ -37,28 +37,34 @@ def is_sprouting(growth_stage: GrowthStage, dt2: datetime, dt1: datetime):
             
 
 # NOTE: Function to revise plant growth stages based on hardcoded features (not entirely relying on CV output)
-def revise_plants_status(current_pot: Pot, new_plants_status):
+def revise_plants_status(current_pot: Pot, new_plants_status: dict):
     revised_plants_status = {}
-    for ring_colour in new_plants_status:
-        plant = Plant.parse_obj(new_plants_status[ring_colour])
+    new_plants_objs: Plants = Plants.parse_obj(new_plants_status)
+    old_plants_objs: Plants = current_pot.session.plants
+
+    # Fields are ordered https://pydantic-docs.helpmanual.io/usage/models/#field-ordering
+    for old_plant_tuple, new_plant_tuple in zip(old_plants_objs, new_plants_objs):
+        old_plant: Plant = old_plant_tuple[1]
+        new_plant: Plant = new_plant_tuple[1]
+        ring_colour = old_plant.ringColour
 
         # NOTE: After harvest, slot will be empty so None. For UT, no new seeds after harvest, so keep it at None
         # TODO: Ideally to remove this once UI allows users to indicate to plant new seed
-        if current_pot.session.plants[ring_colour] == None:
-            plant = None
+        if old_plant.growthStage == None:
+            new_plant = Plant(growthStage=None, ringColour=new_plant.ringColour)
 
         # TODO: Future work: start time of seed planting based on user indication in app, not session start time
         # NOTE: Add replace(tzinfo=None) to avoid error "can't subtract offset-naive and offset-aware datetimes"
         elif is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            plant.growthStage = GrowthStage.seed
+            new_plant.growthStage = GrowthStage.seed
 
-        elif is_sprouting(plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            plant.growthStage = GrowthStage.sprouting
+        elif is_sprouting(new_plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+            new_plant.growthStage = GrowthStage.sprouting
         
         else:
-            pass
+            logger.info("No revision to plants status needed")
 
-        revised_plants_status[ring_colour] = plant.dict() if plant != None else plant
+        revised_plants_status[ring_colour] = new_plant.dict()
     return revised_plants_status
 
 def to_show_trim(new_plants_status):
@@ -74,7 +80,7 @@ def to_show_trim(new_plants_status):
             
     return after_check_trim_status
 
-def harvest_ready(new_plants_status):
+def harvest_ready(new_plants_status: dict):
     for ring_colour in new_plants_status:
         plant = Plant.parse_obj(new_plants_status[ring_colour])
         if plant.growthStage ==  GrowthStage.harvest:
@@ -88,25 +94,23 @@ def is_harvested(old_plant_obj: Plant, new_plant_obj: Plant):
             and (new_plant_obj.growthStage == GrowthStage.seed or new_plant_obj.growthStage == GrowthStage.sprouting)) 
 
 #TODO: Make a function for converting from new_plants_status to dictionary of plants and back and forth
-def get_harvests_completed(current_pot: Pot, new_plants_status):
+def get_harvests_completed(current_pot: Pot, new_plants_status: dict):
     harvest_count = 0
     after_harvest_plants_status = {}
-    new_plants_objs: Union[Dict[RingColour, None], Dict[RingColour, Plant]] = {}
-    old_plants_objs: Union[Dict[RingColour, None], Dict[RingColour, Plant]] = current_pot.session.plants
-    for ring_colour in new_plants_status:
-        if new_plants_status[ring_colour] == None:
-            new_plants_objs[ring_colour] = None
-        else:
-            new_plants_objs[ring_colour] = Plant.parse_obj(new_plants_status[ring_colour])
+    new_plants_objs: Plants = Plants.parse_obj(new_plants_status)
+    old_plants_objs: Plants = current_pot.session.plants
 
-    for ring_colour in RingColour:
-        old_plant = old_plants_objs[ring_colour.value]
-        new_plant = new_plants_objs[ring_colour.value]
-        if old_plant != None and new_plant != None and is_harvested(old_plant, new_plant):
-            # After harvest, slot will be empty so None
-            new_plant = None
+    # Fields are ordered https://pydantic-docs.helpmanual.io/usage/models/#field-ordering
+    for old_plant_tuple, new_plant_tuple in zip(old_plants_objs, new_plants_objs):
+        old_plant: Plant = old_plant_tuple[1]
+        new_plant: Plant = new_plant_tuple[1]
+        ring_colour = old_plant.ringColour
+
+        if is_harvested(old_plant, new_plant):
+            # NOTE: After harvest, slot will be empty so None, since CV can't differentiate null, seed and sprout
+            new_plant = Plant(growthStage=None, ringColour=new_plant.ringColour)
             harvest_count += 1
-        after_harvest_plants_status[ring_colour] = new_plant.dict() if new_plant != None else new_plant
+        after_harvest_plants_status[ring_colour] = new_plant.dict()
 
     return harvest_count, after_harvest_plants_status
 

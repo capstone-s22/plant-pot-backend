@@ -1,10 +1,10 @@
 from models.Reward import RewardIncrement
-from models.Plant import Plant
+from models.Plant import Plant, Plants
 from models.CheckIn import CheckIn
 
 C = 10
 
-def get_harvest_reward(harvest_count):
+def get_harvest_reward(harvest_count: int):
     leaves_reward = harvest_count*50
     coins_reward = harvest_count*100
     plant_care_reward = RewardIncrement(
@@ -15,16 +15,18 @@ def get_harvest_reward(harvest_count):
     return plant_care_reward.dict()
     
 
-def get_check_in_reward(plants, check_in_info):
+def get_check_in_reward(plants: Plants, check_in_info: dict):
     leaves_reward = 0
     coins_reward = 0
-    for ring_colour in plants:
-        plant: Plant = plants[ring_colour]
+    for plant_tuple in plants:
+        # NOTE: Iterating through plants: Plants give you ('peach', Plant(...)) as a tuple
+        # TODO: Perhaps find a more refined way to do this
+        plant: Plant = plant_tuple[1]
         leaves_reward += (plant.plantSize*(plant.plantHealth + 1))/10 + C
 
     check_in_obj = CheckIn.parse_obj(check_in_info)
-    if check_in_obj.checkInStreak == 5:
-        coins_reward = 20
+    if check_in_obj.checkInStreak % 5 == 0:
+        coins_reward = 20*(check_in_obj.checkInStreak//5)
 
     check_in_reward = RewardIncrement(
         leavesRewardIncrement=leaves_reward,

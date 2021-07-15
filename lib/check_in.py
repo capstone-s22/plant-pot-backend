@@ -2,10 +2,11 @@ from models.CheckIn import CheckIn
 from datetime import datetime
 
 def to_add_streak(dt2: datetime, dt1: datetime):
+    # TODO: change to == 1
     return 0 <  (dt2 - dt1).days < 2
     
 def get_check_in_update(check_in_obj: CheckIn):
-    if check_in_obj.checkInLastDate == None or check_in_obj.checkInStreak == 5:
+    if check_in_obj.checkInLastDate == None:
         check_in_obj.checkInStreak = 1
     else:
         # TODO: Verify if logic is correct (0000 Mon -> 2359 Tue:)
