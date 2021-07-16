@@ -7,7 +7,7 @@ class SensorType(str, Enum):
     nutrient_level = "nutrientLevel"
     water_level = "waterLevel"
 
-class SensorIndicatorRange(str, Enum):
+class SensorIndicatorRange(str, Enum): #low/high means too low/high (unhealthy), medium means just right (healthy)
     null = None
     low = "low"
     medium = "medium"

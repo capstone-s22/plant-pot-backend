@@ -1,10 +1,11 @@
 import sys
 import os 
+from typing import Tuple
 
 from validations.pot2be_schemas import MessageFromPot, Action, PotDataStr, PotDataBool, PotDataFloat, PotDataDictStr, PotDataDictBool, PotDataDictFloat 
 from validations.be2pot_schemas import MessageToPot, PotSendDataDictStr, PotSendDataStr, PotSendDataDictBool
 from models.Pot import Pot
-from models.Sensor import Sensor, SensorType
+from models.Sensor import Sensor, SensorIndicatorRange, SensorType
 from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
 from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_sounds, get_harvest_reward
@@ -54,10 +55,11 @@ async def crud_manager(message: MessageFromPot):
                     parameter = pot_data_dict["field"]
                     sensor_type: SensorType = pot_data_dict["field"]
                     sensor_value = pot_data_dict["value"]
-                    to_alert = is_sensor_remedy_needed(sensor_type, sensor_value)
+                    to_alert, indicator_val = is_sensor_remedy_needed(sensor_type, sensor_value)
                     firestore_input = {
                         "session.sensors.{}.value".format(sensor_type) : sensor_value,
                         "session.sensors.{}.toAlert".format(sensor_type) : to_alert,
+                        "session.sensors.{}.indicator".format(sensor_type) : indicator_val.value,
                         "sounds.sadSound" : to_alert,
                         }
 

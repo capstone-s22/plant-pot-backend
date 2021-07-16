@@ -1,4 +1,4 @@
-from models.Sensor import SensorType
+from models.Sensor import SensorType, Sensor, Sensors, SensorIndicatorRange
 import aiohttp
 from attr import field
 import os
@@ -115,15 +115,29 @@ def get_harvests_completed(current_pot: Pot, new_plants_status: dict):
     return harvest_count, after_harvest_plants_status
 
 def is_water_level_unhealthy(water_level_value: int):
-    return water_level_value == 0
+    if water_level_value == 0:
+        return True, SensorIndicatorRange.low
+    else:
+        return False, SensorIndicatorRange.medium
 
 def is_nutrient_level_unhealthy(nutrient_level_value: float):
-    return nutrient_level_value < 800.0 or nutrient_level_value > 2000.0
+    if nutrient_level_value < 800.0:
+        return True, SensorIndicatorRange.low
+    elif nutrient_level_value > 2500.0:
+        return True, SensorIndicatorRange.high
+    else:
+        return False, SensorIndicatorRange.medium
 
 def is_temperature_unhealthy(temp_value: float):
-    return temp_value < 24.5
 
-def is_sensor_remedy_needed(sensor_type: SensorType, sensor_value):
+    if temp_value < 20.0:
+        return True, SensorIndicatorRange.low
+    elif temp_value > 31.0:
+        return True, SensorIndicatorRange.high
+    else:
+        return False, SensorIndicatorRange.medium
+
+def is_sensor_remedy_needed(sensor_type: SensorType, sensor_value): 
     if sensor_type == SensorType.nutrient_level:
         return is_nutrient_level_unhealthy(sensor_value)
     elif sensor_type == SensorType.water_level:
@@ -131,8 +145,19 @@ def is_sensor_remedy_needed(sensor_type: SensorType, sensor_value):
     elif sensor_type == SensorType.temperature:
         return is_temperature_unhealthy(sensor_value)
     else:
-        return None
+        return None, None
     
 def is_remedy_performed(sensor_type: SensorType, last_pot_obj: Pot):
-    last_sensor_alert_status = last_pot_obj.session.sensors[sensor_type].toAlert
+    last_sensor_alert_status = None
+    last_sensors_obj: Sensors = last_pot_obj.session.sensors
+    # TODO: Cuurrently have to loop through all sensors to find the sensor type. Improve this if possible
+    for sensor_tuple in last_sensors_obj:
+        sensor: Sensor = sensor_tuple[1]
+        if sensor.type == sensor_type:
+            last_sensor_alert_status = sensor.toAlert
+
+    # TODO: Remove this once sensortype is checked in MessageFromPot
+    if last_sensor_alert_status == None:
+        raise Exception("Sensor type invalid")
+
     return last_sensor_alert_status # sensor value remedied, hence alert from True to False
