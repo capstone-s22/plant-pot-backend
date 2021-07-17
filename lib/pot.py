@@ -9,7 +9,8 @@ def scheduled_quiz_dates(start_date, quiz_day_intervals):
     # pot_reg_date = datetime.today() 
     quiz_dates = []
     for interval in quiz_day_intervals:
-        end_date = (start_date + timedelta(days=interval)).strftime('%Y%m%d')
+        # Day 1 means day of registration, so need to minus 1
+        end_date = (start_date + timedelta(days=interval-1)).strftime('%Y%m%d')
         quiz_dates.append(end_date)
     return quiz_dates
 
