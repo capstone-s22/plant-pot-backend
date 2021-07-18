@@ -6,6 +6,7 @@ import base64
 from firebase_admin import credentials, firestore, initialize_app
 import json
 from models.Pot import Pot
+from datetime import datetime
 
 sys.path.append("..")
 from ws import ws_server
@@ -39,8 +40,17 @@ pots_collection = db.collection(COLLECTION_NAME)
 # result = pots_collection.where('session.quiz.quizDates', 'array_contains', "20210626").get()
 result = pots_collection.get()
 
-# for i in result:
-#     pot_id = i.to_dict()['potId']
-#     firestore_input = {"session.checkIn.showCheckIn": False}
-#     pots_collection.document(pot_id).update(firestore_input)
+current_date = datetime.utcnow().strftime('%Y%m%d')
+# NOTE: For Python, all string fields with an integer value like '1' require ``
+retrieved_pots = pots_collection.where('session.quiz.quizDates', 'array_contains', current_date).get()
 
+for pot in retrieved_pots:
+    pot_id = pot.to_dict()["potId"]
+    quiz_day_number_idx = pot.to_dict()['session']['quiz']['quizDates'].index(current_date)
+    quiz_day_number = pot.to_dict()['session']['quiz']['quizDayNumbers'][quiz_day_number_idx]
+    current_show_quiz_numbers: list = pot.to_dict()['session']['quiz']['showQuizNumbers']
+    print(pot_id, current_show_quiz_numbers)
+
+    # if current_show_quiz_numbers == None:
+    #     firestore_input = {"session.quiz.showQuizNumbers": []}
+    #     pots_collection.document(pot_id).update(firestore_input)
