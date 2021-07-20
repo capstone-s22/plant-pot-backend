@@ -18,14 +18,19 @@ async def cv_inference(pot_id, encoded_img_data):
         raise Exception("CV_SERVER_URL_PREFIX not set")
     data = { "potId": pot_id, "encoded_data": encoded_img_data }
     async with aiohttp.request(method='GET', url=CV_SERVER_URL_PREFIX, json=data) as resp:
-        assert resp.status == 200
-        response = await resp.json()
-        for ring_colour in response:
-            try:
-                Plant.parse_obj(response[ring_colour]) # Validate data with model
-            except Exception as e:
-                raise Exception("CV server's response validation error")
-        return response
+        if resp.status == 200:
+            response = await resp.json()
+            
+            for ring_colour in response:
+                try:
+                    Plant.parse_obj(response[ring_colour]) # Validate data with model
+                except Exception as e:
+                    raise Exception("CV server's response validation error")
+            return response
+        else:
+            response = await resp.json()
+            logger.error("Respose status={}, response={}".format(resp.status, response))
+            raise Exception("Something went wrong in CV Server")
 
 def is_seed(dt2: datetime, dt1: datetime):
     return (dt2 - dt1).days == 0 # Day 1

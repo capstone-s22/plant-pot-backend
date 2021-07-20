@@ -12,6 +12,8 @@ from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_so
 from lib.check_in import get_check_in_update
 from lib.plant_care import cv_inference, get_harvests_completed, harvest_ready, revise_plants_status, is_sensor_remedy_needed, is_remedy_performed, to_show_trim
 
+from lib.custom_logger import logger
+
 async def crud_manager(message: MessageFromPot):
     pot_id = message.potId
     parameter = ""
@@ -80,7 +82,7 @@ async def crud_manager(message: MessageFromPot):
                     encoded_img_data = pot_data_dict["value"]
                     current_pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
                     new_plants_status = await cv_inference(pot_id, encoded_img_data)
-
+                    logger.info("Plants cv result: {}".format(new_plants_status))
                     # NOTE: Function for time-based plant growth stages. Remove if only depending on CV
                     # TODO: Future work: start time of seed planting based on user indication in app, not session start time
                     # TODO: soundalert here, not through firebase listener

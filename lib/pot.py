@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 
 from models.Pot import Pot
 from models.Session import Session, NewSessionInput
@@ -22,7 +22,10 @@ def new_pot_registration(pot_id):
         new_pot = Pot(potId=pot_id, session=new_session)
         quiz_dates = scheduled_quiz_dates(new_session.sessionStartTime, new_session.quiz.quizDayNumbers)
         new_session.quiz.quizDates = quiz_dates
-
+        print(1111111)
+        print(new_pot.potRegisteredTime)
+        print(datetime.now(timezone.utc))
+        print(1111)
         return new_pot
     except Exception as e:
         return e
