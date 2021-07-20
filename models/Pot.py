@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Union, get_type_hints
 from uuid import UUID
 from models.Session import Session
@@ -12,7 +12,8 @@ class PotId(BaseModel):
 class Pot(BaseModel):
     potId: Union[None, str]
     # user_id: str
-    potRegisteredTime: datetime = datetime.utcnow()
+     # NOTE: Can't create default values here as it will stay as constant throughout
+    potRegisteredTime: datetime
     session: Session
     connected: bool = True
     sounds: Sounds = Sounds()

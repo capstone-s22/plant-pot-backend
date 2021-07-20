@@ -16,16 +16,16 @@ def scheduled_quiz_dates(start_date, quiz_day_intervals):
 
 def new_pot_registration(pot_id):
     try:
+        # NOTE: Have to call datetime.utcnow() here instead of creating default values in class Session as it will stay as constant
         new_session = Session(
             newSessInput=NewSessionInput(potId=pot_id),
-            )   
-        new_pot = Pot(potId=pot_id, session=new_session)
+            sessionStartTime=datetime.utcnow()
+            )
+        # NOTE: Have to call datetime.utcnow() here instead of creating default values in class Pot as it will stay as constant
+        # Another way of getting utc time is datetime.now(timezone.utc)
+        new_pot = Pot(potId=pot_id, potRegisteredTime=datetime.utcnow(), session=new_session)
         quiz_dates = scheduled_quiz_dates(new_session.sessionStartTime, new_session.quiz.quizDayNumbers)
         new_session.quiz.quizDates = quiz_dates
-        print(1111111)
-        print(new_pot.potRegisteredTime)
-        print(datetime.now(timezone.utc))
-        print(1111)
         return new_pot
     except Exception as e:
         return e

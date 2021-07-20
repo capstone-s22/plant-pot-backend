@@ -29,7 +29,7 @@ class NewSessionInput(BaseModel):
         
 class Session(BaseModel):
     sessionId: int = 1
-    sessionStartTime: datetime = datetime.utcnow()
+    sessionStartTime: datetime
     sessionEndTime: Union[None, datetime] = None
     reward: Reward = Reward()
     quiz: Quiz = Quiz()
