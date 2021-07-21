@@ -5,6 +5,7 @@ from typing import Dict, List
 # from typing_extensions import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from lib.firebase import pots_collection
 from lib.custom_logger import logger
 from validations import be2pot_schemas, pot2be_schemas
 from ws.manager import crud_manager
@@ -20,15 +21,26 @@ class ConnectionManager:
 
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
-        self.active_connections[websocket.path_params['pot_id']] = websocket
-        logger.info("WS connected with Pot {}".format(websocket.path_params['pot_id']))
-        logger.info("Connected WSs - {}".format(self.active_connections.keys()))
+        pot_id = websocket.path_params['pot_id']
+        self.active_connections[pot_id] = websocket
+        if pots_collection.document(pot_id).get().exists:
+            logger.info("Document {} exists in Firestore".format(pot_id))
+            firestore_input = {"connected": True}
+            pots_collection.document(pot_id).update(firestore_input)
+            logger.info("WS connected with Pot {}".format(pot_id))
+            logger.info("Connected WSs - {}".format(self.active_connections.keys()))
+
+        else:
+            logger.error("Document {} does not exist in Firestore".format(pot_id))
 
     def disconnect(self, pot_id):
         # self.active_connections.pop(pot_id, None)
         del self.active_connections[pot_id]
-        logger.warning("Pot {} disconnected".format(pot_id))
+        logger.error("Pot {} disconnected".format(pot_id))
         self.check_existing_connections()
+        if pots_collection.document(pot_id).get().exists:
+            firestore_input = {"connected": False}
+            pots_collection.document(pot_id).update(firestore_input)
 
     async def send_personal_message_text(self, message: str, pot_id: str):
         if pot_id in self.active_connections:
