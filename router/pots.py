@@ -34,10 +34,14 @@ async def health(pot: PotHttpReq):
 async def create(new_pot: PotHttpReq):
     try:
         pot_id = new_pot.id
-        new_pot = new_pot_registration(pot_id) 
-        pots_collection.document(pot_id).set(new_pot.dict())
-        logger.info("New Pot {} registered".format(pot_id))
-        return {"success": True}
+        if pots_collection.document(pot_id).get().exists:
+            logger.info(" Pot {} already registered".format(pot_id))
+            return {"success": True, "message": "Pot {} already registered".format(pot_id)}
+        else:
+            new_pot = new_pot_registration(pot_id) 
+            pots_collection.document(pot_id).set(new_pot.dict())
+            logger.info("New Pot {} registered".format(pot_id))
+            return {"success": True, "message": "New Pot {} registered".format(pot_id)}
     except Exception as e:
         logger.error(e)
         return f"An Error Occured: {e}"

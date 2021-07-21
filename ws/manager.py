@@ -26,10 +26,14 @@ async def crud_manager(message: MessageFromPot):
                 if pot_data_dict["field"] == PotDataStr.pot:
                     parameter = pot_data_dict["field"]
                     pot_id_to_create = pot_data_dict["value"]
-                    new_pot: Pot = new_pot_registration(pot_id_to_create)
-                    # Add pot in firebase
-                    pots_collection.document(pot_id).set(new_pot.dict())
-
+                    if pots_collection.document(pot_id).get().exists:
+                        logger.info(" Pot {} already registered".format(pot_id))
+                    else:
+                        new_pot: Pot = new_pot_registration(pot_id_to_create)
+                        # Add pot in firebase
+                        pots_collection.document(pot_id).set(new_pot.dict())
+                        logger.info("New Pot {} registered".format(pot_id))
+        #TODO: Create else condition to raise exception if pot not in database
         # Update
         elif message.action == Action.update:
             for pot_data_dict in message.data:

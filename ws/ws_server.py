@@ -27,16 +27,19 @@ class ConnectionManager:
             logger.info("Document {} exists in Firestore".format(pot_id))
             firestore_input = {"connected": True}
             pots_collection.document(pot_id).update(firestore_input)
-            logger.info("WS connected with Pot {}".format(pot_id))
-            logger.info("Connected WSs - {}".format(self.active_connections.keys()))
-
         else:
-            logger.error("Document {} does not exist in Firestore".format(pot_id))
+            logger.warning("Document {} does not exist in Firestore".format(pot_id))
 
-    def disconnect(self, pot_id):
+        logger.info("WS connected with Pot {}".format(pot_id))
+        self.check_existing_connections()
+
+    def disconnect(self, pot_id, error_disconnect=False):
         # self.active_connections.pop(pot_id, None)
         del self.active_connections[pot_id]
-        logger.error("Pot {} disconnected".format(pot_id))
+        if error_disconnect:
+            logger.error("Pot {} unexpectedly disconnected".format(pot_id))
+        else:
+            logger.info("Pot {} gracefully disconnected".format(pot_id))
         self.check_existing_connections()
         if pots_collection.document(pot_id).get().exists:
             firestore_input = {"connected": False}
@@ -115,7 +118,7 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
         await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
 
     except WebSocketDisconnect:
-        ws_manager.disconnect(pot_id)
+        ws_manager.disconnect(pot_id, error_disconnect=True)
     
     except Exception as e:
         logger.error(e)           
