@@ -16,9 +16,9 @@ router = APIRouter()
 async def health(pot: PotHttpReq):
     try:
         pot_id = pot.id
-        # firestore_input = {"session.checkIn.showCheckIn": True}
+        firestore_input = {"session.checkIn.showCheckIn": True}
         # Update Firebase to alert mobile app
-        # pots_collection.document(pot_id).update(firestore_input)
+        pots_collection.document(pot_id).update(firestore_input)
         # Alert Pot
         alert_message = MessageToPot(
                                 potId=pot_id, 
