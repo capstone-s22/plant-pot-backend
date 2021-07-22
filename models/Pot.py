@@ -15,7 +15,7 @@ class Pot(BaseModel):
      # NOTE: Can't create default values here as it will stay as constant throughout
     potRegisteredTime: datetime
     session: Session
-    connected: bool = True
+    connected: bool
     sounds: Sounds = Sounds()
 
 class PotHttpReq(BaseModel):

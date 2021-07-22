@@ -14,7 +14,7 @@ def scheduled_quiz_dates(start_date, quiz_day_intervals):
         quiz_dates.append(end_date)
     return quiz_dates
 
-def new_pot_registration(pot_id):
+def new_pot_registration(pot_id, is_pot_connected=True):
     try:
         # NOTE: Have to call datetime.utcnow() here instead of creating default values in class Session as it will stay as constant
         new_session = Session(
@@ -23,7 +23,7 @@ def new_pot_registration(pot_id):
             )
         # NOTE: Have to call datetime.utcnow() here instead of creating default values in class Pot as it will stay as constant
         # Another way of getting utc time is datetime.now(timezone.utc)
-        new_pot = Pot(potId=pot_id, potRegisteredTime=datetime.utcnow(), session=new_session)
+        new_pot = Pot(potId=pot_id, potRegisteredTime=datetime.utcnow(), session=new_session, connected=is_pot_connected)
         quiz_dates = scheduled_quiz_dates(new_session.sessionStartTime, new_session.quiz.quizDayNumbers)
         new_session.quiz.quizDates = quiz_dates
         return new_pot

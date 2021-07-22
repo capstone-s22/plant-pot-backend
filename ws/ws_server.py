@@ -18,7 +18,8 @@ class ConnectionManager:
 
     def check_existing_connections(self):
         logger.info("Existing Connections - {}".format(list(self.active_connections.keys())))
-
+        return list(self.active_connections.keys())
+        
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         pot_id = websocket.path_params['pot_id']
