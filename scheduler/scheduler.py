@@ -24,7 +24,7 @@ async def pots_health_check():
             firestore_input = {"connected": True}
 
         except Exception as e:
-            logger.error("Health check to Pot {} failed!".format(pot_id))
+            logger.error("Health check to Pot {} failed!".format(pot_id) + str(e))
             firestore_input = {"connected": False}
             
         # Update Firebase to alert mobile app
@@ -49,7 +49,7 @@ async def daily_check_in_alert():
             logger.info("Sent Check In alert to Pot {}".format(pot_id))
             # TODO: Need a message queue for messages not sent to pots with failed websocket connection
         except Exception as e:
-            logger.error("Check In alert to Pot {} failed!".format(pot_id))
+            logger.error("Check In alert to Pot {} failed!".format(pot_id) + str(e))
 
 async def quiz_alert():
     current_date = datetime.utcnow().strftime('%Y%m%d')
@@ -83,7 +83,7 @@ async def quiz_alert():
             logger.info("Sent Quiz {} alert to Pot {}".format(quiz_day_number, pot_id))
 
         except Exception as e:
-            logger.error("Quiz {} alert to Pot {} failed!".format(quiz_day_number, pot_id))
+            logger.error("Quiz {} alert to Pot {} failed!".format(quiz_day_number, pot_id) + str(e))
 
 scheduler = AsyncIOScheduler({'apscheduler.timezone': 'UTC'})
 

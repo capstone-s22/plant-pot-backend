@@ -1,9 +1,11 @@
 import os
 import sys
+import json
 import pydantic
 from typing import Dict, List
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from lib.errors import PotNotFound
 from lib.firebase import pots_collection
 from lib.custom_logger import logger
 from validations import be2pot_schemas, pot2be_schemas
@@ -49,21 +51,16 @@ class ConnectionManager:
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_text(message)
-            logger.info(message)
         else:
-            message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
             logger.error(message)
-            raise Exception("Websocket for Pot {} not found".format(pot_id)) 
+            raise PotNotFound("Websocket for Pot {} not found for message - {}.".format(pot_id, message))
 
     async def send_personal_message_json(self, message: dict, pot_id: str):
         if pot_id in self.active_connections:
             websocket: WebSocket = self.active_connections[pot_id]
             await websocket.send_json(message)
-            logger.info(message)
         else:
-            message["error_msg"] = "Websocket for Pot {} not found".format(pot_id)
-            logger.error(message)
-            raise Exception("Websocket for Pot {} not found".format(pot_id)) 
+            raise PotNotFound("Websocket for Pot {} not found for message - ".format(pot_id) + json.dumps(message))
 
     async def broadcast(self, message_dict: be2pot_schemas.PotSendDataDictStr):
         if len(self.active_connections) > 0:
@@ -101,8 +98,12 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
             responses = await ws_manager.process_message(msg_obj)
             
             for response in responses:
-                await ws_manager.send_personal_message_json(response.dict(), pot_id)
-            # await manager.broadcast(f"Client #{pot_id} says: {data}")
+                # NOTE: To account for disconnections before message can be sent back. Not sure if this is the best
+                # TODO: maybe make into function
+                try:
+                    await ws_manager.send_personal_message_json(response.dict(), pot_id)
+                except Exception as e:
+                    logger.error(e)
     
     # TODO: This will currently cause websocket to disconnect. Best to not disconnect
     except pydantic.error_wrappers.ValidationError as e:
@@ -117,15 +118,13 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
                                         field=be2pot_schemas.PotSendDataStr.error,
                                         value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
                                     )
+            # NOTE: could have done what i did above, but dont want to make another tested try except 
             await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
             raise WebSocketDisconnect
             
         except WebSocketDisconnect:
              ws_manager.disconnect(pot_id, error_disconnect=True)
              
-        # NOTE: Since will automatically disconnect, I commented these out
-
-
     except WebSocketDisconnect:
         ws_manager.disconnect(pot_id, error_disconnect=True)
     
@@ -138,7 +137,10 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
                                     field=be2pot_schemas.PotSendDataStr.error,
                                     value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
                                 )
-
-        await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
+        # NOTE: To account for disconnections before message can be sent back. Not sure if this is the best
+        try:
+            await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
+        except Exception as e:
+            logger.error(e)
 
 ws_manager = ConnectionManager()

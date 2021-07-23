@@ -27,7 +27,7 @@ async def health(pot: PotHttpReq):
         pots_collection.document(pot_id).update(firestore_input)
         return {"health check": True}
     except Exception as e:
-        logger.error("Health check to pot {} failed!".format(pot_id))
+        logger.error("Health check to pot {} failed!".format(pot_id) + str(e))
         return {"health check": False}
 
 @router.post('/add')

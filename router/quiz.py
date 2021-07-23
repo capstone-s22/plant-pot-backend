@@ -32,5 +32,5 @@ async def alert_quiz(pot: PotHttpReq):
 
     except Exception as e:
         message = "Quiz alert message to Pot {} failed!".format(pot_id)
-        logger.error(message)
+        logger.error(message + str(e))
         return {"success": False, "message": message}
