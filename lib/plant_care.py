@@ -128,8 +128,6 @@ def is_water_level_unhealthy(water_level_value: int):
 def is_nutrient_level_unhealthy(nutrient_level_value: float):
     if nutrient_level_value < 1.0:
         return True, SensorIndicatorRange.low
-    elif nutrient_level_value > 2.5:
-        return True, SensorIndicatorRange.high
     else:
         return False, SensorIndicatorRange.medium
 
