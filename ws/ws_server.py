@@ -38,10 +38,7 @@ class ConnectionManager:
     def disconnect(self, pot_id, error_disconnect=False):
         # self.active_connections.pop(pot_id, None)
         del self.active_connections[pot_id]
-        if error_disconnect:
-            logger.error("Pot {} unexpectedly disconnected".format(pot_id))
-        else:
-            logger.info("Pot {} gracefully disconnected".format(pot_id))
+        logger.error("Pot {} unexpectedly disconnected".format(pot_id))
         self.check_existing_connections()
         if pots_collection.document(pot_id).get().exists:
             firestore_input = {"connected": False}
@@ -123,10 +120,10 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
             raise WebSocketDisconnect
             
         except WebSocketDisconnect:
-             ws_manager.disconnect(pot_id, error_disconnect=True)
+            ws_manager.disconnect(pot_id)
              
     except WebSocketDisconnect:
-        ws_manager.disconnect(pot_id, error_disconnect=True)
+        ws_manager.disconnect(pot_id)
     
     except Exception as e:
         logger.error(e)           
