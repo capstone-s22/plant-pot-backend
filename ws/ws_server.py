@@ -83,13 +83,9 @@ class ConnectionManager:
         else:
             logger.warning("No websocket connections to broadcast to")
 
-    async def process_message(self, data):
-        try:
-            msg_obj: pot2be_schemas.MessageFromPot = await pot2be_schemas.validate_model(data)
-            responses: List[be2pot_schemas.MessageToPot] = await crud_manager(msg_obj)
-            return responses
-        except Exception as e:
-            return e
+    async def process_message(self, msg_obj: pot2be_schemas.MessageFromPot):
+        responses: List[be2pot_schemas.MessageToPot] = await crud_manager(msg_obj)
+        return responses
 
 @router.websocket("/ws/{pot_id}")
 async def websocket_endpoint(websocket: WebSocket, pot_id: str):
@@ -99,23 +95,36 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
         while True:
             data = await websocket.receive_json()
             logger.info(data)
-            responses = await ws_manager.process_message(data)
+            # Validate message received from pot
+            msg_obj: pot2be_schemas.MessageFromPot = await pot2be_schemas.validate_model(data)
+            # Process maessage before replying pot
+            responses = await ws_manager.process_message(msg_obj)
+            
             for response in responses:
                 await ws_manager.send_personal_message_json(response.dict(), pot_id)
             # await manager.broadcast(f"Client #{pot_id} says: {data}")
     
-    # TODO: Maybe can remove this 
+    # TODO: This will currently cause websocket to disconnect. Best to not disconnect
     except pydantic.error_wrappers.ValidationError as e:
-        logger.error(e)           
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
-                                data=[be2pot_schemas.PotSendDataDictStr(
-                                    field=be2pot_schemas.PotSendDataStr.error,
-                                    value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
-                                )
+        # NOTE: Since it will disconnect, I made sure to update connected: False in firestore
+        # TODO: Once dealt with, remove this ugly implementation
+        try:
+            logger.error(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
+                                    data=[be2pot_schemas.PotSendDataDictStr(
+                                        field=be2pot_schemas.PotSendDataStr.error,
+                                        value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
+                                    )
+            await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
+            raise WebSocketDisconnect
+            
+        except WebSocketDisconnect:
+             ws_manager.disconnect(pot_id, error_disconnect=True)
+             
+        # NOTE: Since will automatically disconnect, I commented these out
 
-        await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
 
     except WebSocketDisconnect:
         ws_manager.disconnect(pot_id, error_disconnect=True)
