@@ -3,10 +3,9 @@ from enum import Enum
 import uuid 
 import time as time
 from typing import get_type_hints, List, Optional, Dict, Union
-from typing_extensions import TypedDict
 
 from models.Pot import Pot
-
+from models.Sensor import SensorType
 '''
 Pot to Backend JSON messages
 '''
@@ -28,22 +27,20 @@ class PotDataStr(str, Enum):
 class PotDataBool(str, Enum):
     checkIn = "checkIn"
 
-class PotDataFloat(str, Enum):
-    sensorTemperature = "temperature"
-    sensorNutrientLevel = "nutrientLevel"
-    sensorWaterLevel = "waterLevel"
+# class PotDataFloat(str, Enum):
+#     others = "others"
 
 # TODO: Make better suit for different types of messages
-class PotDataDictStr(TypedDict):
+class PotDataDictStr(BaseModel):
     field: PotDataStr
     value: Union[None, str]
 
-class PotDataDictBool(TypedDict):
+class PotDataDictBool(BaseModel):
     field: PotDataBool
     value: Union[None, bool]
 
-class PotDataDictFloat(TypedDict):
-    field: PotDataFloat
+class PotDataDictFloat(BaseModel):
+    field: SensorType
     value: Union[None, float]
 
 class MessageFromPot(BaseModel):

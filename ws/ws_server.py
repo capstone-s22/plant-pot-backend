@@ -2,7 +2,6 @@ import os
 import sys
 import pydantic
 from typing import Dict, List
-# from typing_extensions import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from lib.firebase import pots_collection

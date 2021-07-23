@@ -18,7 +18,7 @@ def get_check_in_update(check_in_obj: CheckIn):
     check_in_obj.checkInLastDate = datetime.utcnow()
     check_in_obj.showCheckIn = False 
 
-    return check_in_obj.dict()
+    return check_in_obj
 
 # test = {'showCheckIn': False, 'checkInStreak': 1, 'checkInLastDate': date(2021, 7, 9, 6, 28, 38, 700010)}
 # get_check_in_update(CheckIn.parse_obj(test))

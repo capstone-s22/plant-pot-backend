@@ -33,7 +33,7 @@ def get_check_in_reward(plants: Plants, check_in_info: dict):
         coinsRewardIncrement=coins_reward
     )
 
-    return check_in_reward.dict()
+    return check_in_reward
 
 def get_plant_care_reward():
     leaves_reward = 20

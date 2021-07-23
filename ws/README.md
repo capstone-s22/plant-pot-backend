@@ -108,6 +108,18 @@
 	}
 
 * Harvest 
+	* To indicate ready for harvest
+		```json
+		{
+			"action": "update",
+			"potId": "1111111",
+			"data":[
+				{
+					"field":"showHarvest",
+					"value": true
+				}
+			]
+		}
 	* Send image over (to perform CV and check if harvested)
 		```json
 		{
@@ -121,20 +133,101 @@
 			]
 		}
 
-	* To indicate ready for harvest
+* Alert checkIn
+	* Turn on check-in alert
 		```json
 		{
-			"action": "update",
-			"potId": "1111111",
+			"action":"update",
+			"potId":"1111111",
 			"data":[
 				{
-					"field":"harvest",
-					"value":"Pot 1111111's plants are ready to harvest!"
+					"field":"showCheckIn",
+					"value":true
+				}
+			]
+		}
+	* Turn off check-in alert
+		```json
+		{
+			"action":"update",
+			"potId":"1111111",
+			"data":[
+				{
+					"field":"showCheckIn",
+					"value": false
 				}
 			]
 		}
 
-* Sounds
+* Alert Quiz
+	* Turn on quiz alert
+		```json
+		{
+			"action":"update",
+			"potId":"1111111",
+			"data":[
+				{
+					"field":"showQuiz",
+					"value":true
+				}
+			]
+		}
+	* Turn off quiz alert
+		```json
+		{
+			"action":"update",
+			"potId":"1111111",
+			"data":[
+				{
+					"field":"showQuiz",
+					"value":false
+				}
+			]
+		}
+
+* Alert temperature, EC, water level sensors
+	* Turn on sensors alert
+		```json
+		{
+			"action":"update",
+			"potId":"1111111",
+			"data": [
+				{
+					"field": "showTemperature",
+					"value": true
+				},
+				{
+					"field": "showNutrientLevel",
+					"value": true
+				},
+				{
+					"field": "showWaterLevel",
+					"value": true
+				}
+			]
+		}
+	* Turn off sensors alert
+		```json
+		{
+			"action":"update",
+			"potId":"1111111",
+			"data": [
+				{
+					"field": "showTemperature",
+					"value": false
+				},
+				{
+					"field": "showNutrientLevel",
+					"value": false
+				},
+				{
+					"field": "showWaterLevel",
+					"value": false
+				}
+			]
+		}
+
+* Sounds (currently not used)
 	* Ring Happy sound (for rewards)
 		```json
 		{
@@ -161,33 +254,7 @@
 			]
 		}
 
-* Alert checkIn
-	* Leaves sound effect
-		```json
-		{
-			"action":"update",
-			"potId":"1111111",
-			"data":[
-				{
-					"field":"showCheckIn",
-					"value":true
-				}
-			]
-		}
 
-* Alert Quiz
-	* Leaves sound effect
-		```json
-		{
-			"action":"update",
-			"potId":"1111111",
-			"data":[
-				{
-					"field":"showQuiz",
-					"value":true
-				}
-			]
-		}
 
 
 

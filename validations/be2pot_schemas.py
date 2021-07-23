@@ -3,8 +3,8 @@ from enum import Enum
 import uuid 
 import time as time
 from typing import get_type_hints, List, Optional, Dict, Union
-from typing_extensions import TypedDict
 from models.Pot import Pot
+from models.Sensor import SensorType
 
 '''
 Backend to Pot JSON messages
@@ -20,9 +20,10 @@ class Action(str, Enum):
 class PotSendDataBool(str, Enum):
     showCheckIn = "showCheckIn"
     showQuiz = "showQuiz"
-    alertTempSensor = "temperature" # Currently unused
-    alertNLSensor = "nutrientLevel" # Currently unused
-    alertWLSensor = "waterLevel" # Currently unused
+    showHarvest = "showHarvest"
+    alertTempSensor = "showTemperature" # Currently unused
+    alertNLSensor = "showNutrientLevel" # Currently unused
+    alertWLSensor = "showWaterLevel" # Currently unused
     ringHappySound = "ringHappySound"
     ringSadSound = "ringSadSound"
 
@@ -31,13 +32,12 @@ class PotSendDataStr(str, Enum):
     acknowledgment = "ack"
     error = "error"
     image = "image"
-    harvest = "harvest"
 
-class PotSendDataDictBool(TypedDict):
+class PotSendDataDictBool(BaseModel):
     field: PotSendDataBool
     value: Union[None, bool]
 
-class PotSendDataDictStr(TypedDict):
+class PotSendDataDictStr(BaseModel):
     field: PotSendDataStr
     value: Union[None, str]
 
@@ -48,7 +48,12 @@ class MessageToPot(BaseModel):
     class Config:  
         use_enum_values = True
 
-
-
-
-    
+def getPotSendDataBoolSensor(sensor_type: SensorType):
+    if sensor_type == sensor_type.temperature:
+        return PotSendDataBool.alertTempSensor
+    elif sensor_type == sensor_type.nutrient_level:
+        return PotSendDataBool.alertNLSensor
+    elif sensor_type == sensor_type.water_level:
+        return PotSendDataBool.alertWLSensor
+    else:
+        raise Exception("Invalid Sensor Type") 
