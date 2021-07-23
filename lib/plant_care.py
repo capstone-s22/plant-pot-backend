@@ -60,11 +60,14 @@ def revise_plants_status(current_pot: Pot, new_plants_status: dict):
 
         # TODO: Future work: start time of seed planting based on user indication in app, not session start time
         # NOTE: Add replace(tzinfo=None) to avoid error "can't subtract offset-naive and offset-aware datetimes"
-        elif is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            new_plant.growthStage = GrowthStage.seed
+        
+        # NOTE: Temporarily removing them for UT 
+        # elif is_seed(datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+        #     new_plant.growthStage = GrowthStage.seed
 
-        elif is_sprouting(new_plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
-            new_plant.growthStage = GrowthStage.sprouting
+        # NOTE: Temporarily removing them for UT 
+        # elif is_sprouting(new_plant.growthStage, datetime.utcnow(), current_pot.session.sessionStartTime.replace(tzinfo=None)):
+        #     new_plant.growthStage = GrowthStage.sprouting
         
         else:
             logger.info("No revision to plants status needed")
