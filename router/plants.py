@@ -23,5 +23,5 @@ async def harvest(pot: PotHttpReq):
         return {"success": True}
 
     except Exception as e:
-        logger.error("CV read message failed to send to pot {}".format(pot_id) + str(e))
+        logger.error("CV read message failed to send to pot {}! Message -  ".format(pot_id) + str(e))
         return {"success": False}

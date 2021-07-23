@@ -103,7 +103,7 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
                 try:
                     await ws_manager.send_personal_message_json(response.dict(), pot_id)
                 except Exception as e:
-                    logger.error(e)
+                    logger.error("Normal message to Pot {} failed! Message - ".format(pot_id) + str(e))
     
     # TODO: This will currently cause websocket to disconnect. Best to not disconnect
     except pydantic.error_wrappers.ValidationError as e:

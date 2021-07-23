@@ -30,5 +30,5 @@ async def alert_check_in(pot: PotHttpReq):
         return {"alert check-in": True}
 
     except Exception as e:
-        logger.error("Check In alert to Pot {} failed!".format(pot_id) + str(e))
+        logger.error("Check In alert to Pot {} failed! Message -  ".format(pot_id) + str(e))
         return {"alert check-in": False}
