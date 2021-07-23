@@ -38,7 +38,7 @@ class PotSendDataDictBool(BaseModel):
     value: Union[None, bool]
 
 class PotSendDataDictStr(BaseModel):
-    field: PotSendDataStr
+    field: Union[PotSendDataStr, SensorType]
     value: Union[None, str]
 
 class MessageToPot(BaseModel):

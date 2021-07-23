@@ -227,6 +227,19 @@
 			]
 		}
 
+* (Special Case) Request for EC Sensor Value
+	```json
+	{
+		"action": "read",
+		"potId": "1111111",
+		"data":[
+			{
+				"field": "nutrientLevel",
+				"value": "send EC value over"
+			}
+		]
+	}
+
 * Sounds (currently not used)
 	* Ring Happy sound (for rewards)
 		```json
