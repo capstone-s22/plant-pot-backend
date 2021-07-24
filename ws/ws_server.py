@@ -37,8 +37,12 @@ class ConnectionManager:
 
     def disconnect(self, pot_id, error_disconnect=False):
         # self.active_connections.pop(pot_id, None)
-        del self.active_connections[pot_id]
-        logger.error("Pot {} unexpectedly disconnected".format(pot_id))
+        if pot_id in self.active_connections:
+            del self.active_connections[pot_id]
+            logger.error("Pot {} unexpectedly disconnected".format(pot_id))
+        else:
+            # shouldnt happen
+            logger.error("Pot {} unexpectedly disconnected. BUT pot not recorded in connections".format(pot_id))
         self.check_existing_connections()
         if pots_collection.document(pot_id).get().exists:
             firestore_input = {"connected": False}
