@@ -11,7 +11,7 @@ from ws.ws_server import ws_manager
 router = APIRouter()
 
 #TODO: if need be, change payload format to indicate type of sensor
-@router.get('/ecsensor')
+@router.put('/ecsensor')
 async def ec_sensor(pot: PotHttpReq):
     try:
         pot_id = pot.id
