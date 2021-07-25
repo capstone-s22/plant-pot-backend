@@ -16,7 +16,7 @@ async def alert_quiz(pot: PotHttpReq):
     try:
         pot_id = pot.id
         pot: Pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
-        to_alert_quiz = len(pot.session.quiz.quizDayNumbers) != 0
+        to_alert_quiz = len(pot.session.quiz.showQuizNumbers) != 0
 
         alert_quiz_message = MessageToPot(
                                 potId=pot_id, 
