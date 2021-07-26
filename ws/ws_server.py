@@ -24,18 +24,28 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         pot_id = websocket.path_params['pot_id']
-        self.active_connections[pot_id] = websocket
-        if pots_collection.document(pot_id).get().exists:
-            logger.info("Document {} exists in Firestore".format(pot_id))
-            firestore_input = {"connected": True}
-            pots_collection.document(pot_id).update(firestore_input)
+
+        if pot_id in self.check_existing_connections():
+            print("closing")
+            await websocket.close(code=4000)
         else:
-            logger.warning("Document {} does not exist in Firestore".format(pot_id))
+            self.active_connections[pot_id] = websocket
+            if pots_collection.document(pot_id).get().exists:
+                logger.info("Document {} exists in Firestore".format(pot_id))
+                firestore_input = {"connected": True}
+                pots_collection.document(pot_id).update(firestore_input)
+            else:
+                logger.warning("Document {} does not exist in Firestore".format(pot_id))
 
-        logger.info("WS connected with Pot {}".format(pot_id))
-        self.check_existing_connections()
+            logger.info("WS connected with Pot {}".format(pot_id))
+            self.check_existing_connections()
 
-    def disconnect(self, pot_id, error_disconnect=False):
+
+
+    async def disconnect(self, websocket: WebSocket, pot_id, error_disconnect=False):
+        # NOTE: To properly close connection just in case, using code 4000 just to customize for this use case
+        await websocket.close(code=4000)
+
         # self.active_connections.pop(pot_id, None)
         if pot_id in self.active_connections:
             del self.active_connections[pot_id]
@@ -124,24 +134,27 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
             raise WebSocketDisconnect
             
         except WebSocketDisconnect:
-            ws_manager.disconnect(pot_id)
+            await ws_manager.disconnect(websocket, pot_id)
              
     except WebSocketDisconnect:
-        ws_manager.disconnect(pot_id)
+        await ws_manager.disconnect(websocket, pot_id)
     
     except Exception as e:
-        logger.error(e)           
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
-                                data=[be2pot_schemas.PotSendDataDictStr(
-                                    field=be2pot_schemas.PotSendDataStr.error,
-                                    value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
-                                )
-        # NOTE: To account for disconnections before message can be sent back. Not sure if this is the best
-        try:
-            await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
-        except Exception as e:
+        if type(e) == AssertionError: #NOTE: Not sure if AssertionError is specific to .close() function
+            logger.error("Server gracefully disconnected Pot {}".format(pot_id))
+        else:
             logger.error(e)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
+                                    data=[be2pot_schemas.PotSendDataDictStr(
+                                        field=be2pot_schemas.PotSendDataStr.error,
+                                        value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
+                                    )
+            # NOTE: To account for disconnections before message can be sent back. Not sure if this is the best
+            try:
+                await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
+            except Exception as e:
+                logger.error(e)
 
 ws_manager = ConnectionManager()
