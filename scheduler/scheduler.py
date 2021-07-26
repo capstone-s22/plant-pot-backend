@@ -87,7 +87,7 @@ async def quiz_alert():
 
 scheduler = AsyncIOScheduler({'apscheduler.timezone': 'UTC'})
 
-scheduler.add_job(pots_health_check, 'interval', hours=1)
+# scheduler.add_job(pots_health_check, 'interval', hours=1) # Temporary
 # UTC Time is 8 hours ahead of SGT, so UTC 1600 == SGT 0000
 # NOTE: Somehow AsyncIOScheduler can't run concurrently, TODO: research on this
 scheduler.add_job(daily_check_in_alert, 'cron', hour=16)
