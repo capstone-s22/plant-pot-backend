@@ -42,7 +42,34 @@ async def crud_manager(message: MessageFromPot):
                                                 value=message)]
                                             )
                     responses.append(ack_response)
+
+        elif message.action == Action.read:
+            for pot_data_dict in message.data:
+                # Get showCheckIn status
+                if pot_data_dict.field == PotDataStr.showCheckIn:
+                    pot_id = pot_data_dict.value
+                    pot: Pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
+                    check_in_alert_response = MessageToPot(potId=pot_id, 
+                                            data=[PotSendDataDictBool(
+                                                field=PotSendDataBool.showCheckIn,
+                                                value=pot.session.checkIn.showCheckIn)]
+                                            )
+                    responses.append(check_in_alert_response)
+
+                elif pot_data_dict.field == PotDataStr.showQuiz:
+                    pot_id = pot_data_dict.value
+                    pot: Pot = Pot.parse_obj(pots_collection.document(pot_id).get().to_dict())
+                    to_alert_quiz = len(pot.session.quiz.showQuizNumbers) != 0
+                    alert_quiz_message = MessageToPot(
+                                            potId=pot_id, 
+                                            data=[PotSendDataDictBool(
+                                                field=PotSendDataBool.showQuiz,
+                                                value=to_alert_quiz)])
+                    responses.append(alert_quiz_message)
                     
+                else:
+                    pass
+
         #TODO: Create else condition to raise exception if pot not in database
         # Update
         elif message.action == Action.update:

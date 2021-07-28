@@ -16,14 +16,42 @@
 	```
 
 * Daily check-in
+	* Get check-in status
+		```json
+		{
+			"action": "read",
+			"potId": "0001",
+			"data": [
+				{
+					"field": "showCheckIn",
+					"value": "0001"
+				}
+			]
+		}
+		```
+	* Update check-in action
+		```json
+		{
+			"action": "update",
+			"potId": "0001",
+			"data": [
+				{
+					"field": "checkIn",
+					"value": true
+				}
+			]
+		}
+		```
+
+* Get quiz status
 	```json
 	{
-		"action": "update",
+		"action": "read",
 		"potId": "0001",
 		"data": [
 			{
-				"field": "checkIn",
-				"value": true
+				"field": "showQuiz",
+				"value": "0001"
 			}
 		]
 	}
