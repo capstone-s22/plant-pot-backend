@@ -23,6 +23,8 @@ class Action(str, Enum):
 class PotDataStr(str, Enum):
     pot = "pot"
     image = "image"
+    showCheckIn = "showCheckIn"
+    showQuiz = "showQuiz"
 
 class PotDataBool(str, Enum):
     checkIn = "checkIn"
@@ -30,6 +32,7 @@ class PotDataBool(str, Enum):
 # class PotDataFloat(str, Enum):
 #     others = "others"
 
+# NOTE: For "pot", "showCheckIn" and "showQuiz", the value is pot_id which is string, and image is encoded string data of image
 # TODO: Make better suit for different types of messages
 class PotDataDictStr(BaseModel):
     field: PotDataStr
