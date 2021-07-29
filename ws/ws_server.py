@@ -28,6 +28,7 @@ class ConnectionManager:
         if pot_id in self.check_existing_connections():
             print("closing")
             await websocket.close(code=4000)
+            logger.info("Server gracefully disconnected Pot {} due to duplicate connection".format(pot_id))
         else:
             self.active_connections[pot_id] = websocket
             if pots_collection.document(pot_id).get().exists:
@@ -41,11 +42,8 @@ class ConnectionManager:
             self.check_existing_connections()
 
 
-
+    # NOTE: Need to run disconnect to ensure proper disconnection as cannot control whether server terminates on the errors below
     async def disconnect(self, websocket: WebSocket, pot_id, error_disconnect=False):
-        # NOTE: To properly close connection just in case, using code 4000 just to customize for this use case
-        await websocket.close(code=4000)
-
         # self.active_connections.pop(pot_id, None)
         if pot_id in self.active_connections:
             del self.active_connections[pot_id]
@@ -57,6 +55,10 @@ class ConnectionManager:
         if pots_collection.document(pot_id).get().exists:
             firestore_input = {"connected": False}
             pots_collection.document(pot_id).update(firestore_input)
+
+        # NOTE: To properly close connection just in case, using code 4000 just to customize for this use case
+        await websocket.close(code=4000)
+        logger.info("Server completes disconnection with Pot Pot {}".format(pot_id))
 
     async def send_personal_message_text(self, message: str, pot_id: str):
         if pot_id in self.active_connections:
@@ -102,10 +104,15 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
     try:
         while True:
             data = await websocket.receive_json()
-            logger.info(data)
+            logger.info(json.dumps({"message from Pot {}".format(pot_id): data}))
+            
             # Validate message received from pot
             msg_obj: pot2be_schemas.MessageFromPot = await pot2be_schemas.validate_model(data)
             # Process maessage before replying pot
+
+            # Ensure that pot ID in endpoint matches pot ID in message
+            assert pot_id == msg_obj.potId
+
             responses = await ws_manager.process_message(msg_obj)
             
             for response in responses:
@@ -135,26 +142,31 @@ async def websocket_endpoint(websocket: WebSocket, pot_id: str):
             
         except WebSocketDisconnect:
             await ws_manager.disconnect(websocket, pot_id)
-             
+
+    except json.decoder.JSONDecodeError: #Incomplete json message received
+        await ws_manager.disconnect(websocket, pot_id)
+
     except WebSocketDisconnect:
         await ws_manager.disconnect(websocket, pot_id)
     
+    except AssertionError:
+        # NOTE: For now there is only this assertion
+        logger.error("Pot ID in endpoint ws/<pot-id> does not match pot ID in message")
+        await ws_manager.disconnect(websocket, pot_id)
+
     except Exception as e:
-        if type(e) == AssertionError: #NOTE: Not sure if AssertionError is specific to .close() function
-            logger.error("Server gracefully disconnected Pot {}".format(pot_id))
-        else:
+        logger.error(e)
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
+                                data=[be2pot_schemas.PotSendDataDictStr(
+                                    field=be2pot_schemas.PotSendDataStr.error,
+                                    value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
+                                )
+        # NOTE: To account for disconnections before message can be sent back. Not sure if this is the best
+        try:
+            await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
+        except Exception as e:
             logger.error(e)
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            err_response = be2pot_schemas.MessageToPot(potId=pot_id, 
-                                    data=[be2pot_schemas.PotSendDataDictStr(
-                                        field=be2pot_schemas.PotSendDataStr.error,
-                                        value="{}: {}, line {}, {}".format(exc_type, fname, exc_tb.tb_lineno, e))]
-                                    )
-            # NOTE: To account for disconnections before message can be sent back. Not sure if this is the best
-            try:
-                await ws_manager.send_personal_message_json(err_response.dict(), pot_id)
-            except Exception as e:
-                logger.error(e)
 
 ws_manager = ConnectionManager()
