@@ -96,7 +96,7 @@
 
 ## From Backend to Pot
 
-* Acknowledgement (for every messages sent to Pot)
+* Acknowledgement (currently only for pot registration)
 	```json
 	{
 		"action": "update",

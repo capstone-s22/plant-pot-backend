@@ -3,7 +3,7 @@ from datetime import datetime
 
 def to_add_streak(dt2: datetime, dt1: datetime):
     # TODO: change to == 1
-    return 0 <  (dt2 - dt1).days < 2
+    return 0 <  (dt2 - dt1).days <= 2
     
 def get_check_in_update(check_in_obj: CheckIn):
     if check_in_obj.checkInLastDate == None:
