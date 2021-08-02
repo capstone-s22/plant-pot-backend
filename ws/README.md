@@ -268,6 +268,20 @@
 		]
 	}
 
+* Turn on/off pot's fan
+	```json
+	{
+		"action": "update",
+		"potId": "1001",
+		"data": [
+			{
+				"field": "fan",
+				"value": false
+			}
+		]
+	}
+	```
+
 * Sounds (currently not used)
 	* Ring Happy sound (for rewards)
 		```json

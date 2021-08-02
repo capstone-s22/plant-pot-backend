@@ -38,19 +38,25 @@ pots_collection = db.collection(COLLECTION_NAME)
 # result = pots_collection.where(u'session.session_id', u'==', "1").get()
 # result = pots_collection.where('session.session_id', '==', "1").get()
 # result = pots_collection.where('session.quiz.quizDates', 'array_contains', "20210626").get()
-result = pots_collection.get()
+# result = pots_collection.get()
 
-current_date = datetime.utcnow().strftime('%Y%m%d')
-# NOTE: For Python, all string fields with an integer value like '1' require ``
-retrieved_pots = pots_collection.where('session.quiz.quizDates', 'array_contains', current_date).get()
+# current_date = datetime.utcnow().strftime('%Y%m%d')
+# # NOTE: For Python, all string fields with an integer value like '1' require ``
+# retrieved_pots = pots_collection.where('session.quiz.quizDates', 'array_contains', current_date).get()
 
-for pot in retrieved_pots:
-    pot_id = pot.to_dict()["potId"]
-    quiz_day_number_idx = pot.to_dict()['session']['quiz']['quizDates'].index(current_date)
-    quiz_day_number = pot.to_dict()['session']['quiz']['quizDayNumbers'][quiz_day_number_idx]
-    current_show_quiz_numbers: list = pot.to_dict()['session']['quiz']['showQuizNumbers']
-    print(pot_id, current_show_quiz_numbers)
+# for pot in retrieved_pots:
+#     pot_id = pot.to_dict()["potId"]
+#     quiz_day_number_idx = pot.to_dict()['session']['quiz']['quizDates'].index(current_date)
+#     quiz_day_number = pot.to_dict()['session']['quiz']['quizDayNumbers'][quiz_day_number_idx]
+#     current_show_quiz_numbers: list = pot.to_dict()['session']['quiz']['showQuizNumbers']
+#     print(pot_id, current_show_quiz_numbers)
 
     # if current_show_quiz_numbers == None:
     #     firestore_input = {"session.quiz.showQuizNumbers": []}
     #     pots_collection.document(pot_id).update(firestore_input)
+
+old_pot = pots_collection.document("0008-2").get().to_dict()
+pots_collection.document("0008").set(old_pot)
+# new_pot = pots_collection.document("0008").get().to_dict()
+#
+# print(old_pot == new_pot)
