@@ -143,21 +143,23 @@ async def crud_manager(message: MessageFromPot):
                     harvest_count, new_plants_status = get_harvests_completed(current_pot, new_plants_status)
                     harvest_reward = get_harvest_reward(harvest_count)
                     ring_happy_sound = get_reward_sounds(harvest_reward)
-                    firestore_input = {
-                        "session.plants" : new_plants_status,
-                        "session.reward.harvestReward": harvest_reward,
-                        "sounds.happySound": ring_happy_sound
-                        }
+
+                    # TODO: Uncomment this once demo is done
+                    # firestore_input = {
+                    #     "session.plants" : new_plants_status,
+                    #     "session.reward.harvestReward": harvest_reward,
+                    #     "sounds.happySound": ring_happy_sound
+                    #     }
 
                     harvest_alert_response = MessageToPot(potId=pot_id, 
                                             data=[PotSendDataDictBool(
                                                 field=PotSendDataBool.showHarvest,
                                                 value=harvest_ready(new_plants_status))])
 
-                    # TODO: Uncomment this once demo is done
-                    # responses.append(harvest_alert_response)
+                    responses.append(harvest_alert_response)
 
-                pots_collection.document(pot_id).update(firestore_input)
+                if firestore_input != {} or firestore_input != None:
+                    pots_collection.document(pot_id).update(firestore_input)
 
         else:
             raise Exception("Invalid Action")
