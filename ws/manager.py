@@ -153,7 +153,9 @@ async def crud_manager(message: MessageFromPot):
                                             data=[PotSendDataDictBool(
                                                 field=PotSendDataBool.showHarvest,
                                                 value=harvest_ready(new_plants_status))])
-                    responses.append(harvest_alert_response)
+
+                    # TODO: Uncomment this once demo is done
+                    # responses.append(harvest_alert_response)
 
                 pots_collection.document(pot_id).update(firestore_input)
 

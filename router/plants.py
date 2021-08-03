@@ -16,26 +16,13 @@ router = APIRouter()
 async def harvest(pot: PotHttpReq):
     try:
         pot_id = pot.id
-        # TODO: Uncomment once demo is done
-        # response = MessageToPot(action=Action.read,
-        #                         potId=pot_id, 
-        #                         data=[PotSendDataDictStr(
-        #                             field=PotSendDataStr.image,
-        #                             value="send image over")])
-        # await ws_manager.send_personal_message_json(response.dict(), pot_id)
 
-        #TODO: Delete this once demo is done
-        harvest_count = 1
-        harvest_reward = get_harvest_reward(harvest_count)
-        ring_colour = RingColour.peach
-        plant_update = Plant(ringColour=ring_colour, growthStage=None).dict()
-        firestore_input = {
-            "session.plants.{}".format(ring_colour): plant_update,
-            "session.reward.harvestReward": harvest_reward,
-            }
-        pots_collection.document(pot_id).update(firestore_input)
-        ###########################################
-
+        response = MessageToPot(action=Action.read,
+                                potId=pot_id, 
+                                data=[PotSendDataDictStr(
+                                    field=PotSendDataStr.image,
+                                    value="send image over")])
+        await ws_manager.send_personal_message_json(response.dict(), pot_id)
         logger.info("CV read message sent to pot {}".format(pot_id))
         return {"success": True}
 
