@@ -18,7 +18,8 @@ async def harvest(pot: PotHttpReq):
                                 data=[PotSendDataDictStr(
                                     field=PotSendDataStr.image,
                                     value="send image over")])
-        await ws_manager.send_personal_message_json(response.dict(), pot_id)
+        # TODO: Uncomment once demo is done
+        # await ws_manager.send_personal_message_json(response.dict(), pot_id)
         logger.info("CV read message sent to pot {}".format(pot_id))
         return {"success": True}
 
