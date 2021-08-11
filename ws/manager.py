@@ -2,12 +2,11 @@ from models.Reward import Reward, RewardIncrement
 from models.CheckIn import CheckIn
 import sys
 import os 
-from typing import Tuple
 
 from validations.pot2be_schemas import MessageFromPot, Action, PotDataStr, PotDataBool
 from validations.be2pot_schemas import MessageToPot, PotSendDataBool, PotSendDataDictStr, PotSendDataStr, PotSendDataDictBool, getPotSendDataBoolSensor
 from models.Pot import Pot
-from models.Sensor import Sensor, SensorIndicatorRange, SensorType
+from models.Sensor import SensorType
 from lib.pot import new_pot_registration
 from lib.firebase import pots_collection
 from lib.reward import get_check_in_reward, get_plant_care_reward, get_reward_sounds, get_harvest_reward
@@ -144,12 +143,11 @@ async def crud_manager(message: MessageFromPot):
                     harvest_reward = get_harvest_reward(harvest_count)
                     ring_happy_sound = get_reward_sounds(harvest_reward)
 
-                    # TODO: Uncomment this once demo is done
-                    # firestore_input = {
-                    #     "session.plants" : new_plants_status,
-                    #     "session.reward.harvestReward": harvest_reward,
-                    #     "sounds.happySound": ring_happy_sound
-                    #     }
+                    firestore_input = {
+                        "session.plants" : new_plants_status,
+                        "session.reward.harvestReward": harvest_reward,
+                        "sounds.happySound": ring_happy_sound
+                        }
 
                     harvest_alert_response = MessageToPot(potId=pot_id, 
                                             data=[PotSendDataDictBool(

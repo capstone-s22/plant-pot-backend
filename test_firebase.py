@@ -55,8 +55,29 @@ pots_collection = db.collection(COLLECTION_NAME)
     #     firestore_input = {"session.quiz.showQuizNumbers": []}
     #     pots_collection.document(pot_id).update(firestore_input)
 
-old_pot = pots_collection.document("0008-2").get().to_dict()
-pots_collection.document("0008").set(old_pot)
+# old_pot = pots_collection.document("0008-2").get().to_dict()
+# pots_collection.document("0008").set(old_pot)
 # new_pot = pots_collection.document("0008").get().to_dict()
 #
 # print(old_pot == new_pot)
+
+from models.Plant import Plant, GrowthStage, Plants, RingColour
+
+pot_id = "0006"
+
+# firestore_input = {
+#     "session.plants" : Plants(
+#             blue= Plant(ringColour=RingColour.blue, growthStage=GrowthStage.sprouting),
+#             peach= Plant(ringColour=RingColour.peach, growthStage=GrowthStage.harvest),
+#             purple= Plant(ringColour=RingColour.purple, growthStage=GrowthStage.vegetative),
+#             red= Plant(ringColour=RingColour.red, growthStage=GrowthStage.seedling),
+#     ).dict(),
+#     }
+
+firestore_input = {
+    "session.plants.peach" : Plant(ringColour=RingColour.peach, growthStage=None).dict(),
+    "session.reward.harvestReward.coinsRewardIncrement": 100,
+    "session.reward.harvestReward.leavesRewardIncrement": 50,
+    }
+
+pots_collection.document(pot_id).update(firestore_input)
