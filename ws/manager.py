@@ -143,11 +143,12 @@ async def crud_manager(message: MessageFromPot):
                     harvest_reward = get_harvest_reward(harvest_count)
                     ring_happy_sound = get_reward_sounds(harvest_reward)
 
-                    firestore_input = {
-                        "session.plants" : new_plants_status,
-                        "session.reward.harvestReward": harvest_reward,
-                        "sounds.happySound": ring_happy_sound
-                        }
+                    # TODO: Uncomment it once demo is done
+                    # firestore_input = {
+                    #     "session.plants" : new_plants_status,
+                    #     "session.reward.harvestReward": harvest_reward,
+                    #     "sounds.happySound": ring_happy_sound
+                    #     }
 
                     harvest_alert_response = MessageToPot(potId=pot_id, 
                                             data=[PotSendDataDictBool(
